@@ -25,6 +25,7 @@ export default function SignInPage() {
     console.log("Sign-in response:", { data, error });
 
     if (error) {
+<<<<<<< HEAD
       setMessage(`Error: ${error.message || "An unexpected error occurred"}`);
       setMessageType("error");
     } else {
@@ -39,6 +40,12 @@ export default function SignInPage() {
       setMessage("");
       setMessageType(null);
       router.push(callbackURL);
+=======
+      setMessage(`Error: ${error.message || "An unexpected error occurred"}`)
+    }
+    else {
+      setMessage("Sign-in successful!");
+>>>>>>> 584005f (Zixi: fix cookie not storing issue)
     }
   }
 
