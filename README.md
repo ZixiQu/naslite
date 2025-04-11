@@ -63,3 +63,21 @@ BTW, some command to check DB metadata:
     This `auth.ts` does two things, connect to psql based on .env, also (important) connect better-auth with prisma. If you don't follow exactly this way, better-auth is not aware of prisma, and `npx @better-auth/cli generate` will create an .sql file for you to manually apply. No good. We want better-auth to modify schema.prisma directly, so that DB options are handled by prisma. We never touch .sql nor psql nor manually set prisma.
 
     After `auth.ts` is setup this way, run `npx @better-auth/cli generate --config src/lib/auth.ts`, `schema.prisma` will be updated. And `migrate` (which will generate automatically)
+
+
+
+### better-auth authentication and authorization
+Few important things:
+If you want login functionality, you must `authClient.signIn.email()` in a `"use client"` environment. This function sets session token in cookie, so that you can do authorization within the app (you request, server knows you, give you data, not rejecting you). If you invoke this function in an `"use server"` environment, the cookie is not set in user's browser, user is only logged-in in the server, but no token no cookie, act if not logged-in.
+
+Working endpoints:
+
+`localhost:3000/signup`
+
+`localhost:3000/signin`
+
+`localhost:3000/signin2`  <- different UI
+
+`localhost:3000/greeting` <- To test if signed-in.
+
+for authorization code, check `/src/app/(auth)/greeting/page.tsx`
