@@ -36,6 +36,7 @@ export default function SignUpPage() {
         <label htmlFor="name" className="block text-sm font-medium">Name:</label>
         <input type="text" name="name" className="border p-2 w-full" required />
 
+<<<<<<< HEAD
         <div className="flex justify-center">
           <Button type="submit">Sign Up</Button>
         </div>
@@ -52,6 +53,12 @@ export default function SignUpPage() {
           {message}
         </div>
       )}
+=======
+        {/* <button type="submit">Sign Up</button> */}
+        <Button type="submit">Sign Up</Button>
+      </form>
+      {message && <p>{message}</p>}
+>>>>>>> a1774b1 (Zixi: Sign-up successful)
     </div>
   );
 }
