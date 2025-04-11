@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signInWithEmail } from "@/lib/auth-actions";
+// import { signInWithEmail } from "@/lib/auth-actions";
+import { authClient } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
 
 export default function SignInPage() {
@@ -10,12 +11,24 @@ export default function SignInPage() {
   const router = useRouter();
 
   async function handleSignIn(formData: FormData) {
-    const result = await signInWithEmail(formData);
-    setMessage(result.message);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
+    const callbackURL = "/";
+  
+    const { data, error } = await authClient.signIn.email({
+      email,
+      password,
+      // callbackURL,
+    });
+  
+    console.log("Sign-in response:", { data, error });
 
-    if (result.success) {
-        setTimeout(() => router.push("/"), 3000);
-      }
+    if (error) {
+      setMessage(`Error: ${error.message || "An unexpected error occurred"}`)
+    }
+    else {
+      setMessage("Sign-in successful!");
+    }
   }
 
   return (
