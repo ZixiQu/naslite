@@ -1,15 +1,21 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { signInWithEmail } from "@/lib/auth-actions";
 import { Button } from "@/components/ui/button";
 
 export default function SignInPage() {
   const [message, setMessage] = useState("");
+  const router = useRouter();
 
   async function handleSignIn(formData: FormData) {
     const result = await signInWithEmail(formData);
     setMessage(result.message);
+
+    if (result.success) {
+        setTimeout(() => router.push("/"), 3000);
+      }
   }
 
   return (
