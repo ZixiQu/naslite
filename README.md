@@ -1,36 +1,83 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Final Project Development Note
 
-## Getting Started
+Sometimes I forgot what I did, and why things work. Hence I am writing something down
 
-First, run the development server:
+### Setting up DB
+This step is not prisma setting up schema, but creating a new psql user for my local usage. By taking into consideration this project will be open-sourced in the future, I need to make sure sensitive information is not leaked. For example, passwords...
 
+I create a new db user, for development and testing purpose. Every db operation should be done under this user:
+
+First loggin to psql with root user
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+psql -U zixiqu
+```
+I can log in without password. This is dangerous and I don't know why, but I will figure out why later. Nobody can touch my laptop and I did not setup remote login, so I'm ok.
+
+```sql
+CREATE ROLE naslite WITH LOGIN PASSWORD 'passwd';
+ALTER ROLE naslite CREATEDB;
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Ok, psql user set, .env variables set, good to go
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+BTW, some command to check DB metadata:
+```sql
+\du  -- List of roles (users)
+\d   -- List of relations (tables)
+\l   -- List of databases
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Learn More
+### Setting up better-auth prisma schema
 
-To learn more about Next.js, take a look at the following resources:
+1. We create user model under `schema.prisma` and migrate
+    
+    I don't know if this step is necessary. We might able to skip
+    ```sql
+    model User {
+        id        String   @id @default(uuid())
+        email     String   @unique
+        name      String
+        createdAt DateTime @default(now())
+        updatedAt DateTime @updatedAt
+    }
+    ```
+    migrate: `npx prisma migrate dev --name init`
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+2. User better-auth cli to generate necessary prisma model.
 
-## Deploy on Vercel
+    under `src/lib/auth.ts`
+    ```ts
+    import { betterAuth } from "better-auth";
+    import { prismaAdapter } from "better-auth/adapters/prisma";
+    import { PrismaClient } from "@prisma/client";
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    const prisma = new PrismaClient();
+    export const auth = betterAuth({
+        database: prismaAdapter(prisma, {
+            provider: "postgresql",
+        }),
+    });
+    ```
+    This `auth.ts` does two things, connect to psql based on .env, also (important) connect better-auth with prisma. If you don't follow exactly this way, better-auth is not aware of prisma, and `npx @better-auth/cli generate` will create an .sql file for you to manually apply. No good. We want better-auth to modify schema.prisma directly, so that DB options are handled by prisma. We never touch .sql nor psql nor manually set prisma.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    After `auth.ts` is setup this way, run `npx @better-auth/cli generate --config src/lib/auth.ts`, `schema.prisma` will be updated. And `migrate` (which will generate automatically)
+
+
+
+### better-auth authentication and authorization
+Few important things:
+If you want login functionality, you must `authClient.signIn.email()` in a `"use client"` environment. This function sets session token in cookie, so that you can do authorization within the app (you request, server knows you, give you data, not rejecting you). If you invoke this function in an `"use server"` environment, the cookie is not set in user's browser, user is only logged-in in the server, but no token no cookie, act if not logged-in.
+
+Working endpoints:
+
+`localhost:3000/signup`
+
+`localhost:3000/signin`
+
+`localhost:3000/signin2`  <- different UI
+
+`localhost:3000/greeting` <- To test if signed-in.
+
+for authorization code, check `/src/app/(auth)/greeting/page.tsx`
