@@ -19,9 +19,9 @@ export default function Page() {
   return (
     <div>
       {session?.user?.name ? (
-        <h1>Welcome, {session.user.name}!</h1>
+        <h1 className="text-6xl font-bold mb-4">Welcome, {session.user.name}!</h1>
       ) : (
-        <h1>Not logged in</h1>
+        <h1 className="text-6xl font-bold mb-4">Not logged in</h1>
       )}
     </div>
   );
