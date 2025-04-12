@@ -1,5 +1,6 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 
 const s3Client = new S3Client({
   endpoint: process.env.SPACES_ENDPOINT, // https://nyc3.digitaloceanspaces.com
@@ -11,6 +12,15 @@ const s3Client = new S3Client({
 });
 
 export async function POST(req: NextRequest) {
+  const session = await auth.api.getSession({ headers: req.headers });
+  if (!session) {
+    return NextResponse.json(
+        { error: "Unauthorized" },
+        { status: 401 }
+      );
+  }
+  const user_id = session.user.id;
+
   const contentType = req.headers.get("content-type");
   if (!contentType || !contentType.includes("multipart/form-data")) {
     return NextResponse.json(
@@ -28,7 +38,8 @@ export async function POST(req: NextRequest) {
     }
 
     const fileBuffer = Buffer.from(await file.arrayBuffer());
-    const key = `uploads/${Date.now()}-${file.name}`;
+    // const key = `uploads/${Date.now()}-${file.name}`;
+    const key = `${user_id}/${file.name}`;
 
     const command = new PutObjectCommand({
       Bucket: process.env.SPACES_BUCKET, // next-app-files

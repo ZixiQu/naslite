@@ -23,8 +23,12 @@ export default function UploadPage() {
         method: "POST",
         body: formData,
       });
-
-      if (!res.ok) {
+      if (res.status === 401) {
+        console.log("error is set?");
+        setError("Unauthorized");
+        return; 
+      }
+      else if (!res.ok) {
         throw new Error("Upload failed");
       }
 
@@ -52,7 +56,7 @@ export default function UploadPage() {
         <Button type="submit">Upload</Button>
       </form>
       {error && <p>{error}</p>}
-      {url && (
+      {url && !error && (
         <p>
           File uploaded:{" "}
           <a href={url} target="_blank" rel="noopener noreferrer">
