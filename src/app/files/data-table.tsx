@@ -29,7 +29,11 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
         getFilteredRowModel: getFilteredRowModel(),
         state: {
             sorting,
-            columnFilters
+            columnFilters,
+            pagination: {
+                pageIndex: 0,
+                pageSize: 15
+            }
         }
     });
 

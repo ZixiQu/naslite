@@ -25,7 +25,7 @@ export function FileUpload() {
 
     return (
         <div className="flex flex-col items-center space-y-4 w-full">
-            <div {...getRootProps()} className={`border-2 border-dashed rounded-2xl p-10 w-full max-w-xl flex flex-col items-center justify-center text-center cursor-pointer transition ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-muted'}`}>
+            <div {...getRootProps()} className={`border-4 border-dashed rounded-3xl p-10 w-full flex flex-col items-center justify-center text-center cursor-pointer transition ${isDragActive ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50'}`}>
                 <input {...getInputProps()} />
                 <UploadCloud className="w-10 h-10 mb-4 text-muted-foreground" />
                 <p className="text-sm text-muted-foreground">Drag & drop your file here or click to select to upload to the current path.</p>

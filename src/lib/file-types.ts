@@ -8,4 +8,5 @@ export type File = {
   size: number
   type: FileType | "UNKNOWN"
   link: string
+  deleteLink?: string
 }

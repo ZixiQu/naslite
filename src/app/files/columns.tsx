@@ -1,8 +1,7 @@
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
-import { ArrowUpDown } from 'lucide-react';
-import { MoreHorizontal, Trash, Clipboard } from 'lucide-react';
+import { ArrowUpDown, Download, MoreHorizontal, Trash, Clipboard } from 'lucide-react';
 import { type File } from '@/lib/file-types';
 import { FileImage, FileText, FileVideo, FileAudio, FileArchive, FileType2, FileSpreadsheet, Folder, File as IconFile } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -19,6 +18,9 @@ const fileTypeToIcon = {
     XLSX: FileSpreadsheet,
     DIR: Folder
 } as const;
+
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { useState } from 'react';
 
 export const columns: ColumnDef<File>[] = [
     {
@@ -65,31 +67,63 @@ export const columns: ColumnDef<File>[] = [
     {
         id: 'actions',
         cell: ({ row }) => {
+            const handleDelete = () => {
+                console.log('Deleted:', file.name);
+                setOpen(false);
+            };
+            const handleDownload = () => {
+                console.log('Downloading:', file.name);
+            };
             const file = row.original as File;
+            const [open, setOpen] = useState(false);
 
             return (
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
-                            {/* <span className="sr-only">Open menu</span> */}
-                            <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-52">
-                        <DropdownMenuLabel className="text-muted-foreground">Quick Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
+                <>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                {/* <span className="sr-only">Open menu</span> */}
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-52">
+                            <DropdownMenuLabel className="text-muted-foreground">Quick Actions</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
 
-                        <DropdownMenuItem onClick={() => navigator.clipboard.writeText(file.name)} className="cursor-pointer">
-                            <Clipboard className="mr-2 h-4 w-4" />
-                            Copy File Name
-                        </DropdownMenuItem>
+                            <DropdownMenuItem onClick={handleDownload} className="cursor-pointer">
+                                <Download className="mr-2 h-4 w-4" />
+                                Download
+                            </DropdownMenuItem>
 
-                        <DropdownMenuItem className="text-red-600 focus:text-red-700 hover:bg-red-50 dark:hover:bg-red-900 cursor-pointer">
-                            <Trash className="mr-2 h-4 w-4" />
-                            Delete
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
+                            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(file.name)} className="cursor-pointer">
+                                <Clipboard className="mr-2 h-4 w-4" />
+                                Copy File Name
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem onClick={() => setOpen(true)} className="text-red-600 focus:text-red-700 hover:bg-red-50 dark:hover:bg-red-900 cursor-pointer">
+                                <Trash className="mr-2 h-4 w-4" />
+                                Delete
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <AlertDialog open={open} onOpenChange={setOpen}>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                <AlertDialogDescription className="text-red">
+                                    This will permanently delete <strong>{file.name}</strong>.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                                <AlertDialogCancel onClick={() => setOpen(false)}>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white">
+                                    Confirm
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                </>
             );
         }
     }
