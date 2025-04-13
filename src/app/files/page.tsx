@@ -1,7 +1,8 @@
 "use client"
 
 import { authClient } from "@/lib/auth-client" // import the auth client
-import { File, columns } from "./columns"
+import { columns } from "./columns"
+import { type File } from "@/lib/file-types"
 import { DataTable } from "./data-table"
 
 const files: File[] = [
@@ -26,7 +27,7 @@ const files: File[] = [
   {
     name: "Product Demo",
     size: 153600,
-    type: "Directory",
+    type: "DIR",
     link: "/files/product-demo.mp4",
   },
   {

@@ -1,6 +1,7 @@
 import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { supportedFileTypes, File} from "@/lib/file-types"
 
 
 const s3Client = new S3Client({
@@ -12,15 +13,6 @@ const s3Client = new S3Client({
   },
 });
 
-const supportTypes: string[] = ["PDF", "PNG", "TXT", "MP3", "ZIP", "DOCX", "XLSX", "DIR", "MP4", "JPG", "JPEG"];
-
-type File = {
-  name: string
-  size: number
-  type: string
-  link: string
-}
-
 /**
  * 
  * @param {string} filename: the filename (full path) looking for file type analyze
@@ -31,9 +23,9 @@ function analyzeFileType(filename: string) {
   if (filename.includes("/")) {
     return "DIR";
   }
-  for (let supportType of supportTypes) {
-    if (filename.toLowerCase().includes(supportType.toLowerCase())) {
-      return supportType;
+  for (const type of supportedFileTypes) {
+    if (filename.toLowerCase().includes(type.toLowerCase())) {
+      return type;
     }
   }
   return "UNKNOWN";
