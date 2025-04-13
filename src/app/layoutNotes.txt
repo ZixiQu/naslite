@@ -1,0 +1,56 @@
+Two possible ways for paths
+
+List?
+const paths = [
+  // Root
+  { label: "Home", href: "/" },
+
+  // Home branches
+  { label: "Library", href: "/library", parent: "/" },
+  { label: "ECE1724", href: "/ece1724", parent: "/" },
+
+  // Components hierarchy
+  { label: "Components", href: "/components", parent: "/" },
+  { label: "UI", href: "/components/ui", parent: "/components" },
+  { label: "Button", href: "/components/ui/button", parent: "/components/ui" }
+]
+
+Tree?
+const paths = [
+  {
+    label: "Home",
+    href: "/",
+    children: [
+      {
+        label: "Library",
+        href: "/library"
+      },
+      {
+        label: "ECE1724",
+        href: "/ece1724"
+      },
+      {
+        label: "Components",
+        href: "/components",
+        children: [
+          {
+            label: "UI",
+            href: "/components/ui",
+            children: [
+              {
+                label: "Button",
+                href: "/components/ui/button"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]
+
+Tree option is better
+
+The frontend can also filter the desired paths, check layout.tsx
+
+Dropdown Menu can be implemented once the file paths is confirmed.
