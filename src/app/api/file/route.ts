@@ -15,15 +15,16 @@ const s3Client = new S3Client({
 
 
 export async function GET(req: NextRequest) {
-  // let key = "dMzDvZE0SLLUTGUVvfEgvUcHDqiUK7KN/small.mp4";
+  
 
   const session = await auth.api.getSession({ headers: req.headers });
-    if (!session) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
-    }
+  if (!session) {
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 401 }
+    );
+  }
+  const user_id = session.user.id;
   const { searchParams } = new URL(req.url);
   const key = searchParams.get("key");
 
@@ -33,13 +34,29 @@ export async function GET(req: NextRequest) {
       { status: 400 }
     );
   }
-  
-  const command = new GetObjectCommand({
-    Bucket: process.env.SPACES_BUCKET,
-    Key: key,
+
+  if (!key.includes(user_id)){
+    return NextResponse.json(
+      { error: "Unauthorized" },
+      { status: 400 }
+    );
+  }
+  try {
+    const command = new GetObjectCommand({
+      Bucket: process.env.SPACES_BUCKET,
+      Key: key,
     });
+  
+    const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 * 5 });
+  
+    return NextResponse.json({ url: signedUrl });
 
-  const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 * 5 });
-
-  return NextResponse.json({ url: signedUrl });
+  } catch(error) {
+    console.error("Retrieve error: ", error);
+    return NextResponse.json(
+      { error: "Failed to retrieve file" },
+      { status: 500 }
+    );
+  }
+  
 }
