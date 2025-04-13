@@ -38,14 +38,12 @@ export async function POST(req: NextRequest) {
     }
 
     const fileBuffer = Buffer.from(await file.arrayBuffer());
-    // const key = `uploads/${Date.now()}-${file.name}`;
     const key = `${user_id}/${file.name}`;
 
     const command = new PutObjectCommand({
       Bucket: process.env.SPACES_BUCKET, // next-app-files
       Key: key,
       Body: fileBuffer,
-      ACL: "public-read",
       ContentType: file.type || "application/octet-stream",
     });
 
