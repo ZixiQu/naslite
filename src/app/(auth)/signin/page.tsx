@@ -14,7 +14,7 @@ export default function SignInPage() {
   async function handleSignIn(formData: FormData) {
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
-    const callbackURL = "/greating"; //Replace
+    const callbackURL = "/greeting"; //Replace
   
     const { data, error } = await authClient.signIn.email({
       email,

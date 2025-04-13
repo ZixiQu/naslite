@@ -1,6 +1,8 @@
 "use client"
 
 import { authClient } from "@/lib/auth-client" // import the auth client
+import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 export default function Page() {
   // Retrieve the session using Better Auth's server-side API
@@ -23,6 +25,12 @@ export default function Page() {
       ) : (
         <h1 className="text-6xl font-bold mb-4">Not logged in</h1>
       )}
+
+      <div className="flex justify-center mt-5">
+        <Button className="text-xl mt-5 p-8" size="lg" variant="outline">
+          <Link href="/files">Browse My Files</Link>
+        </Button>
+      </div>
     </div>
   );
 }
