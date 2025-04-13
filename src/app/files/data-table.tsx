@@ -34,7 +34,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     });
 
     return (
-        <div className="flex flex-col space-y-4 p-4 max-w-7xl mx-auto">
+        <div className="flex flex-col space-y-4 w-3/4">
             <div className="flex items-center p-4 justify-center mb-5">
                 <Input placeholder="Filter names..." value={(table.getColumn('name')?.getFilterValue() as string) ?? ''} onChange={event => table.getColumn('name')?.setFilterValue(event.target.value)} className="max-w-xl h-12 text-lg px-5" />
             </div>

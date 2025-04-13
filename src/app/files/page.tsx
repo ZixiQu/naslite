@@ -4,6 +4,7 @@ import { authClient } from "@/lib/auth-client" // import the auth client
 import { columns } from "./columns"
 import { type File } from "@/lib/file-types"
 import { DataTable } from "./data-table"
+import { FileUpload } from "./FileUpload"
 
 const files: File[] = [
   {
@@ -71,7 +72,19 @@ export default function Page() {
   return (
       <div className="w-full">
           {session?.user?.name ? (
-              <DataTable columns={columns} data={files} />
+              <div className="flex min-h-screen">
+                  <div className="flex w-full">
+                      {/* Left section: 2/3 */}
+                      <div className="w-2/3 flex items-center justify-center">
+                          <DataTable columns={columns} data={files} />
+                      </div>
+
+                      {/* Right section: 1/3 */}
+                      <div className="w-1/3 flex items-center justify-center p-4 border-l">
+                          <FileUpload />
+                      </div>
+                  </div>
+              </div>
           ) : (
               <h1 className="text-6xl font-bold mb-4">Not logged in</h1>
           )}
