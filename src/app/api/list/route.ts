@@ -14,6 +14,13 @@ const s3Client = new S3Client({
 
 const supportTypes: string[] = ["PDF", "PNG", "TXT", "MP3", "ZIP", "DOCX", "XLSX", "DIR", "MP4", "JPG", "JPEG"];
 
+type File = {
+  name: string
+  size: number
+  type: string
+  link: string
+}
+
 /**
  * 
  * @param {string} filename: the filename (full path) looking for file type analyze
@@ -49,8 +56,11 @@ export async function GET(req: NextRequest) {
       });
       
       const response = await s3Client.send(listCommand);
-      const files = response.Contents?.map(obj => { 
-        let fullPath = obj.Key as string;
+      console.log(response.Contents);
+      let files: File[] = [];
+      for (let content of response.Contents!) {
+        console.log(content);
+        let fullPath = content.Key as string;
         const match = fullPath.match(/^([^\/]+)\/(.+)$/);
         if (!match) {
           return {
@@ -60,13 +70,20 @@ export async function GET(req: NextRequest) {
             link: ""
           }
         }
-        return {
+        let response = await fetch(`http://localhost:3000/api/file?key=${content.Key}`, {
+          headers: {
+            Cookie: req.headers.get("cookie") || "",
+          },
+        });
+        let data = await response.json();
+        // console.log(data);
+        files.push({
           name: match[2],
-          size: obj.Size,
+          size: content.Size as number,
           type: analyzeFileType(match[2]),
-          link: fetch(`/api/file?key=${obj.Key}`)  // TODO: fetch returns {} now.
-        }
-      });
+          link: data.url  
+        })
+      }
   
       // console.log(files);
       return NextResponse.json(
