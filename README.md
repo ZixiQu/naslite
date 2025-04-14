@@ -80,4 +80,22 @@ Working endpoints:
 
 `localhost:3000/greeting` <- To test if signed-in.
 
-for authorization code, check `/src/app/(auth)/greeting/page.tsx`
+to do authorization, check `/src/app/(auth)/greeting/page.tsx` or `src/app/api/upload/route.ts`
+
+
+### Important note about DO's(DigitalOcean) path
+DO's folder is virtual folder, we can upload a file `folder/folder2/folder3/file.txt`, without creating folder1/2/3. So there is no folder1/2/3 (although you can create them, will talk about that later), and the filename of `file.txt` is literially `folder/folder2/folder3/file.txt`. What sucks about it is if you are looking for `folder//folder2////folder3/////file.txt`, you can't find it, since name not matched.
+
+So we need to be very careful about storing the paths. Few rules.
+If you are storing any path, perhaps the full path to the file (therefore the real name of the file), or the folder is in ("folder/folder2/folder3/"),
+1. remove leading and tailing slashs
+2. normalize slashes in the middle (folder//folder2 -> folder/folder2)
+3. Only explicitly include / if you are concatenating path
+
+There's a function you can `import { trimAndNormalizePath } from "@/lib/path"` that apply both 1. and 2.
+
+
+### Set user's current path in cookie
+User's viewing path is stored in cookie. We set the path when user is checking out a path. When user is creating new item (folder/file), it is created under the path. The benefit of storing in cookie is cookie is persist after closing the browser.
+
+Issue: Need to clean up cookie after session logout/expires.

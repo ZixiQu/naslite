@@ -46,13 +46,18 @@ function filesToTree(files: File[], currentPath: string=""): object[] {
     let filename = file.name;
     let type = file.type;
     if (type === "DIR") {  // "DIR" does not mean a directory, but means a file under dir(s)
-      if (filename.endsWith('/')) {
-        // DigitalOcean folder itself is an item (virtual folder), ending with /, with no content. We want to skip such item, since we are collecting files, not virtual folder. 
+      // if (filename.endsWith('/')) {
+      //   // DigitalOcean folder itself is an item (virtual folder), ending with /, with no content. We want to skip such item, since we are collecting files, not virtual folder. 
+      //   continue;
+      // }
+      no_folders = false;
+      const match = filename.match(/^([^\/]+)\/(.+)$/);
+      if (!match) {
+        // TODO: this happens when filename end with /
+        let folderName = filename.slice(0, -1);
+        folders[folderName] = [...(folders[folderName] || [])];
         continue;
       }
-      no_folders = false;
-      console.log(filename);
-      const match = filename.match(/^([^\/]+)\/(.+)$/);
       let folderName = match![1];
       let truncatePath = match![2];
       let newFile: File = {
@@ -118,22 +123,20 @@ export async function GET(req: NextRequest) {
             link: ""
           }
         }
-        let response = await fetch(`http://localhost:3000/api/file?key=${content.Key}`, {
-          headers: {
-            Cookie: req.headers.get("cookie") || "",
-          },
-        });
-        let data = await response.json();
+        // let response = await fetch(`http://localhost:3000/api/file?key=${content.Key}`, {
+        //   headers: {
+        //     Cookie: req.headers.get("cookie") || "",
+        //   },
+        // });
+        // let data = await response.json();
         files.push({
           name: match[2],
           size: content.Size as number,
           type: analyzeFileType(match[2]),
-          link: data.url  
+          link: ""  
         })
       }
-      console.log(files);
       let tree = filesToTree(files);
-      console.log(tree);
       return NextResponse.json(
         { tree },
         { status: 200 }
