@@ -16,10 +16,45 @@ const paths = [
 ]
 
 Tree?
+
+// Zixi: implemented tree FS structure.
+// paths start with the items in root folder immidiately.
+// each item has name and type and href fields. If type is DIR, must have children field. If not, does not have (undefined)
+// href CAN NOT be used directly, must get the link from fetching "/api/files?key=${user_id}/${href}" with credentials (user auth cookie) to get temp link from digital ocean to access file. This avoid sending thousand of request to digitalOcean once loading, a link can be generated when user wants to open some file.
 const paths = [
   {
-    label: "Home",
-    href: "/",
+    name: "sandbox.txt",
+    type: "TXT",            // type is not "DIR", no children
+    href: "/sandbox.txt",
+  },
+  {
+    name: "Components",  
+    type: "DIR",            // type is "DIR", must have children (Object[]), even is empty (empty folder)
+    href: "/Components/",
+    children: [
+      {
+        name: "ui",
+        type: "DIR",
+        href: "/Components/ui",
+        children: [
+          {
+            name: "Button.tsx",
+            href: "/Components/ui/Button.tsx", 
+            type: "UNKNOWN"     // althought we can visualize (display icon) as file, this is not yet supported.
+          }
+        ]
+      }
+    ]
+  }
+]
+
+
+// JKL suggested way. Made modification above
+const paths = [
+  {
+    label: "Root",  // label means file/folder name
+    href: "/",      // href means full path to the item.
+    type: "DIR"     // if type === "DIR", must have children, even if empty
     children: [
       {
         label: "Library",
@@ -54,3 +89,28 @@ Tree option is better
 The frontend can also filter the desired paths, check layout.tsx
 
 Dropdown Menu can be implemented once the file paths is confirmed.
+
+
+Old localhost:3000/api/lists (1D FS) response:
+{
+    "files": [
+        {
+            "name": "Screenshot 2025-04-11 at 4.53.03 AM.png",
+            "size": 3511560,
+            "type": "PNG",
+            "link": "https://naslite.nyc3.digitaloceanspaces.com/dMzDvZE0SLLUTGUVvfEgvUcHDqiUK7KN/Screenshot%202025-04-11%20at%204.53.03%E2%80%AFAM.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=DO009NGALVDJ843NNBVT%2F20250414%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20250414T092034Z&X-Amz-Expires=300&X-Amz-Signature=d3edd8bf67656bd31f2f00c7b7da8097b2ce20d328133c408f6964ea25e635d3&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject"
+        },
+        {
+            "name": "small.mp4",
+            "size": 3250534,
+            "type": "MP4",
+            "link": "https://naslite.nyc3.digitaloceanspaces.com/dMzDvZE0SLLUTGUVvfEgvUcHDqiUK7KN/small.mp4?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=DO009NGALVDJ843NNBVT%2F20250414%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20250414T092034Z&X-Amz-Expires=300&X-Amz-Signature=473145d7a229a348515fc8e32edcf98c35e1b4a428348f1f143931fd710f1688&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject"
+        },
+        {
+            "name": "test/upload.txt",
+            "size": 87,
+            "type": "DIR",
+            "link": "https://naslite.nyc3.digitaloceanspaces.com/dMzDvZE0SLLUTGUVvfEgvUcHDqiUK7KN/test/upload.txt?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=DO009NGALVDJ843NNBVT%2F20250414%2Fnyc3%2Fs3%2Faws4_request&X-Amz-Date=20250414T092035Z&X-Amz-Expires=300&X-Amz-Signature=3efb6d7c1edef27842acf342f48c0c36d80bef120906d0f5ca8cd7d0237d85bc&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject"
+        }
+    ]
+}

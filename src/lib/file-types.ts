@@ -5,7 +5,7 @@ export type FileType = typeof supportedFileTypes[number]
 // You can use a Zod schema here if you want.
 export type File = {
   name: string
-  size: number
+  size?: number   // if type is DIR, will not calculate size, undefined
   type: FileType | "UNKNOWN"
   link: string
   deleteLink?: string
