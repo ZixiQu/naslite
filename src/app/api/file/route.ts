@@ -34,17 +34,11 @@ export async function GET(req: NextRequest) {
       { status: 400 }
     );
   }
-
-  if (!key.includes(user_id)){
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 400 }
-    );
-  }
+  
   try {
     const command = new GetObjectCommand({
       Bucket: process.env.SPACES_BUCKET,
-      Key: key,
+      Key: `${user_id}/${key}`,
     });
   
     const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 * 5 });
