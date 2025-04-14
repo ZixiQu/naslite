@@ -1,8 +1,7 @@
-import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { getCurrentPath } from "@/lib/path";
 import { auth } from "@/lib/auth";
-
 
 const s3Client = new S3Client({
   endpoint: process.env.SPACES_ENDPOINT, // https://nyc3.digitaloceanspaces.com
@@ -13,10 +12,7 @@ const s3Client = new S3Client({
   },
 });
 
-
-export async function GET(req: NextRequest) {
-  
-
+export async function POST(req: NextRequest) {
   const session = await auth.api.getSession({ headers: req.headers });
   if (!session) {
     return NextResponse.json(
@@ -36,21 +32,25 @@ export async function GET(req: NextRequest) {
   }
   
   try {
-    const command = new GetObjectCommand({
-      Bucket: process.env.SPACES_BUCKET,
-      Key: `${user_id}/${key}`,
+    const currentPath = await getCurrentPath();
+    const fullPath = `${user_id}/${currentPath ? (currentPath + '/') : ""}${key}/`
+    console.log(fullPath);
+    const command = new PutObjectCommand({
+      Bucket: process.env.SPACES_BUCKET!,
+      Key: fullPath,
+      Body: "", // Empty body to simulate folder
     });
-  
-    const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 * 5 });
-  
-    return NextResponse.json({ url: signedUrl });
 
-  } catch(error) {
-    console.error("Retrieve error: ", error);
+    await s3Client.send(command);
+    return new NextResponse(null, { status: 204 }); 
+  } catch (error) {
+    console.error("Error during create folder:", error);
     return NextResponse.json(
-      { error: "Failed to retrieve file" },
+      { error: "Failed to create folder" },
       { status: 500 }
     );
   }
   
+
+
 }

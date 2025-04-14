@@ -2,6 +2,7 @@ import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { supportedFileTypes, File} from "@/lib/file-types"
+import { object } from "better-auth";
 
 
 const s3Client = new S3Client({
@@ -31,6 +32,68 @@ function analyzeFileType(filename: string) {
   return "UNKNOWN";
 }
 
+/**
+ * 
+ * @param {File[]} files old 1D file list structure that does not have folder hierarchy
+ * @return {Object[]} file system structure in a tree structure
+ */
+function filesToTree(files: File[], currentPath: string=""): object[] {
+  // find all immediate folders in files
+  let leaves = [];
+  let folders: { [folderName: string]: File[] } = {};  // {folder_name: [items]}
+  let no_folders = true;
+  for (let file of files) {
+    let filename = file.name;
+    let type = file.type;
+    if (type === "DIR") {  // "DIR" does not mean a directory, but means a file under dir(s)
+      // if (filename.endsWith('/')) {
+      //   // DigitalOcean folder itself is an item (virtual folder), ending with /, with no content. We want to skip such item, since we are collecting files, not virtual folder. 
+      //   continue;
+      // }
+      no_folders = false;
+      const match = filename.match(/^([^\/]+)\/(.+)$/);
+      if (!match) {
+        // TODO: this happens when filename end with /
+        let folderName = filename.slice(0, -1);
+        folders[folderName] = [...(folders[folderName] || [])];
+        continue;
+      }
+      let folderName = match![1];
+      let truncatePath = match![2];
+      let newFile: File = {
+        name: truncatePath,
+        type: analyzeFileType(truncatePath),
+        size: file.size,
+        link: ""
+      } 
+      folders[folderName] = [...(folders[folderName] || []), newFile];
+    }
+    else {
+      leaves.push({
+        name: filename,
+        type: type,
+        href: `${currentPath}${filename}`
+      });
+    }
+  }
+
+  // if no folders (all leaves), base case, return (trivial, keep for readablility)
+  if (no_folders) {
+    return leaves
+  }
+  // else, structure = {all leaves, filesToTree(folder1), filesToTree(folder2)}
+  for (let folderName of Object.keys(folders)) {
+    leaves.push({
+      name: folderName,
+      // size: null,
+      type: "DIR",    // in this case, unlike above, DIR actually means a real folder
+      href: `${currentPath}${folderName}`, 
+      children: filesToTree(folders[folderName], `${currentPath}${folderName}/`)
+    })
+  }
+  return leaves
+}
+
 
 export async function GET(req: NextRequest) {
     const session = await auth.api.getSession({ headers: req.headers });
@@ -48,10 +111,8 @@ export async function GET(req: NextRequest) {
       });
       
       const response = await s3Client.send(listCommand);
-      console.log(response.Contents);
       let files: File[] = [];
       for (let content of response.Contents!) {
-        console.log(content);
         let fullPath = content.Key as string;
         const match = fullPath.match(/^([^\/]+)\/(.+)$/);
         if (!match) {
@@ -62,24 +123,22 @@ export async function GET(req: NextRequest) {
             link: ""
           }
         }
-        let response = await fetch(`http://localhost:3000/api/file?key=${content.Key}`, {
-          headers: {
-            Cookie: req.headers.get("cookie") || "",
-          },
-        });
-        let data = await response.json();
-        // console.log(data);
+        // let response = await fetch(`http://localhost:3000/api/file?key=${content.Key}`, {
+        //   headers: {
+        //     Cookie: req.headers.get("cookie") || "",
+        //   },
+        // });
+        // let data = await response.json();
         files.push({
           name: match[2],
           size: content.Size as number,
           type: analyzeFileType(match[2]),
-          link: data.url  
+          link: ""  
         })
       }
-  
-      // console.log(files);
+      let tree = filesToTree(files);
       return NextResponse.json(
-        { files },
+        { tree },
         { status: 200 }
       );
     }
