@@ -99,3 +99,41 @@ There's a function you can `import { trimAndNormalizePath } from "@/lib/path"` t
 User's viewing path is stored in cookie. We set the path when user is checking out a path. When user is creating new item (folder/file), it is created under the path. The benefit of storing in cookie is cookie is persist after closing the browser.
 
 Issue: Need to clean up cookie after session logout/expires.
+
+
+### Backend API:
+1. GET /api/list
+
+    > No params, no payload
+
+    return a Tree structure of user's entire FS
+
+2. GET /api/file
+
+    > Params: key: users target file. Note, key should follow path rule mentioned above (no double slash, no leading/tailing slash). The key does not include user_id
+
+    return temp link to target file. 
+
+3. POST /api/upload
+
+    > payload: file: js built-in File type (not the one we defined)
+    
+    File will be stored under `${currentPath}/${file.name}`, `${currentPath}` from user's cookie.
+
+4. POST /api/create_folder
+
+   >  Params: key: folder name (should not include "/" in folder name. Frontend checks it, backend doesn't)
+
+    Will create a folder under user's current path (from cookie)
+
+5. DELETE /api/delete
+
+    > Params: key: fullpath to the file to delete.
+
+    Will delete the target file. Will return success code (204 No Content) even if file not exist.
+
+6. GET /api/test
+
+   > No params, no payload
+   
+    For development purpose, will print a greeting message if user is logged-in.

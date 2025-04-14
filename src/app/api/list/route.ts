@@ -1,7 +1,7 @@
 import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { supportedFileTypes, File} from "@/lib/file-types"
+import { supportedFileTypes, type File, type FileTree} from "@/lib/file-types"
 import { object } from "better-auth";
 
 
@@ -35,25 +35,20 @@ function analyzeFileType(filename: string) {
 /**
  * 
  * @param {File[]} files old 1D file list structure that does not have folder hierarchy
- * @return {Object[]} file system structure in a tree structure
+ * @return {FileTree} file system structure in a tree structure
  */
-function filesToTree(files: File[], currentPath: string=""): object[] {
+function filesToTree(files: File[], currentPath: string=""): FileTree {
   // find all immediate folders in files
-  let leaves = [];
-  let folders: { [folderName: string]: File[] } = {};  // {folder_name: [items]}
+  let leaves: FileTree = {};
+  let folders: { [folderName: string]: File[] } = {};
   let no_folders = true;
   for (let file of files) {
-    let filename = file.name;
+    let filename: string = file.name;
     let type = file.type;
-    if (type === "DIR") {  // "DIR" does not mean a directory, but means a file under dir(s)
-      // if (filename.endsWith('/')) {
-      //   // DigitalOcean folder itself is an item (virtual folder), ending with /, with no content. We want to skip such item, since we are collecting files, not virtual folder. 
-      //   continue;
-      // }
+    if (type === "DIR") {  // in this case, unlike below, "DIR" does not mean a directory, but means a file under dir(s)
       no_folders = false;
       const match = filename.match(/^([^\/]+)\/(.+)$/);
       if (!match) {
-        // TODO: this happens when filename end with /
         let folderName = filename.slice(0, -1);
         folders[folderName] = [...(folders[folderName] || [])];
         continue;
@@ -69,11 +64,12 @@ function filesToTree(files: File[], currentPath: string=""): object[] {
       folders[folderName] = [...(folders[folderName] || []), newFile];
     }
     else {
-      leaves.push({
+      leaves[filename] = {
         name: filename,
         type: type,
-        href: `${currentPath}${filename}`
-      });
+        size: file.size ?? 0,
+        link: `${currentPath}${filename}`
+      };
     }
   }
 
@@ -83,13 +79,13 @@ function filesToTree(files: File[], currentPath: string=""): object[] {
   }
   // else, structure = {all leaves, filesToTree(folder1), filesToTree(folder2)}
   for (let folderName of Object.keys(folders)) {
-    leaves.push({
+    leaves[folderName] = {
       name: folderName,
       // size: null,
       type: "DIR",    // in this case, unlike above, DIR actually means a real folder
-      href: `${currentPath}${folderName}`, 
+      link: `${currentPath}${folderName}`, 
       children: filesToTree(folders[folderName], `${currentPath}${folderName}/`)
-    })
+    }
   }
   return leaves
 }
