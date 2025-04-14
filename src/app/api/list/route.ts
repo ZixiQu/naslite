@@ -46,7 +46,12 @@ function filesToTree(files: File[], currentPath: string=""): object[] {
     let filename = file.name;
     let type = file.type;
     if (type === "DIR") {  // "DIR" does not mean a directory, but means a file under dir(s)
+      if (filename.endsWith('/')) {
+        // DigitalOcean folder itself is an item (virtual folder), ending with /, with no content. We want to skip such item, since we are collecting files, not virtual folder. 
+        continue;
+      }
       no_folders = false;
+      console.log(filename);
       const match = filename.match(/^([^\/]+)\/(.+)$/);
       let folderName = match![1];
       let truncatePath = match![2];
@@ -77,8 +82,8 @@ function filesToTree(files: File[], currentPath: string=""): object[] {
       name: folderName,
       // size: null,
       type: "DIR",    // in this case, unlike above, DIR actually means a real folder
-      href: `${currentPath}/${folderName}`, 
-      children: filesToTree(folders[folderName], `${currentPath}/${folderName}/`)
+      href: `${currentPath}${folderName}`, 
+      children: filesToTree(folders[folderName], `${currentPath}${folderName}/`)
     })
   }
   return leaves
