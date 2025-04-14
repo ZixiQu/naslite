@@ -6,6 +6,10 @@ import { type File } from "@/lib/file-types"
 import { DataTable } from "./data-table"
 import { FileUpload } from "./FileUpload"
 import NotLoggedInPage from '../401/page';
+import { setCurrentPath, getCurrentPath } from '@/lib/path';
+import { FileType } from '@/lib/file-types';
+import { useState } from "react"
+
 
 const files: File[] = [
     {
@@ -66,6 +70,37 @@ export default function Page() {
         error, //error object
         refetch //refetch the session
     } = authClient.useSession();
+
+    // let currentPath = getCurrentPath();
+    const [currentPath, setCurrentPath] = useState('');
+    // const [paths, setPaths] = useState<FileSystemNode[]>([]);
+
+    const paths = [
+        {
+            name: 'sandbox.txt',
+            type: 'TXT', // type is not "DIR", no children
+            href: '/sandbox.txt'
+        },
+        {
+            name: 'Components',
+            type: 'DIR', // type is "DIR", must have children (Object[]), even is empty (empty folder)
+            href: '/Components/',
+            children: [
+                {
+                    name: 'ui',
+                    type: 'DIR',
+                    href: '/Components/ui',
+                    children: [
+                        {
+                            name: 'Button.tsx',
+                            href: '/Components/ui/Button.tsx',
+                            type: 'UNKNOWN',
+                        }
+                    ]
+                }
+            ]
+        }
+    ];
 
     if (isPending) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
