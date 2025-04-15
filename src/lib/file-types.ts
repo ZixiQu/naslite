@@ -8,5 +8,10 @@ export type File = {
   size?: number   // if type is DIR, will not calculate size, undefined
   type: FileType | "UNKNOWN"
   link: string
-  deleteLink?: string
+  children?: FileTree 
 }
+
+
+export type FileTree = {
+  [key: string]: File; // tree or leaf with files
+};
