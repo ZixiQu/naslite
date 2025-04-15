@@ -7,9 +7,10 @@ import { DataTable } from './data-table';
 import { FileUpload } from './FileUpload';
 import NotLoggedInPage from '../401/page';
 import { Suspense, useEffect, useState } from 'react';
+import { usePath } from '@/lib/path-context';
 
 // GET /api/list
-async function GetPaths(): Promise<{ paths: FileTree; error?: string }> {
+export async function GetPaths(): Promise<{ paths: FileTree; error?: string }> {
     try {
         const result = await fetch('/api/list', {
             method: 'GET',
@@ -32,40 +33,41 @@ async function GetPaths(): Promise<{ paths: FileTree; error?: string }> {
 function DataTableSection() {
     const [files, setFiles] = useState<File[]>([]);
     const [error, setError] = useState('');
-    const [currentPath, setPath] = useState('');
+    const { Path, setFileTree } = usePath();
 
     useEffect(() => {
         async function fetchData() {
             const { paths, error } = await GetPaths();
+            setFileTree(paths);
             if (error) {
                 setError(error);
                 return;
             }
 
-            console.log('Paths:', currentPath);
+            console.log('Paths:', Path);
 
-            if (!currentPath) {
+            if (!Path) {
                 setFiles(Object.values(paths) as unknown as File[]);
             } else {
-                const pathElement = currentPath.split('/');
+                const pathElement = Path.split('/');
                 let nestedFile: FileTree | undefined = paths;
                 for (const next_path of pathElement) {
                     console.log('Next path:', next_path);
                     if (!nestedFile[next_path] || nestedFile[next_path].type !== 'DIR') break;
                     nestedFile = nestedFile[next_path].children || {};
-                    setFiles(nestedFile as unknown as File[]);
+                    setFiles(Object.values(nestedFile) as unknown as File[]);
                 }
             }
         }
 
         fetchData();
-    }, [currentPath]);
+    }, [Path, setFileTree]);
 
     if (error) {
         return <div>Error: {error}</div>;
     }
 
-    return <DataTable columns={columns} data={files} setPath={setPath} />;
+    return <DataTable columns={columns} data={files} />;
 }
 
 export default function Page() {

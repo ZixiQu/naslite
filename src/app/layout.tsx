@@ -4,14 +4,15 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
-import { Slash } from 'lucide-react';
+import { ChevronDownIcon, Slash } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { usePathname } from 'next/navigation';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbEllipsis, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { FileTree } from '@/lib/file-types';
+import { FileTree, type File } from '@/lib/file-types';
 import { PathProvider } from '@/lib/path-context';
 import { usePath } from '@/lib/path-context';
+import { JSX } from 'react';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -22,6 +23,52 @@ const geistMono = Geist_Mono({
     variable: '--font-geist-mono',
     subsets: ['latin']
 });
+
+function BreadcrumbSubPart(rest_paths: string[], fileTree: FileTree): JSX.Element[] {
+    const items: JSX.Element[] = [];
+    let currentFile: FileTree = fileTree;
+
+    rest_paths.forEach((item, index) => {
+        const siblings = (Object.values(currentFile) as File[]).filter(file => file.name !== item);
+        const dropdown = siblings.length > 0;
+
+        items.push(
+            <span key={index} className="flex items-center">
+                <BreadcrumbItem>
+                    {dropdown ? (
+                        <DropdownMenu>
+                            <DropdownMenuTrigger className="flex items-center gap-1 text-lg font-medium cursor-pointer hover:underline">
+                                {item}
+                                <ChevronDownIcon className="w-4 h-4" />
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start">
+                                {siblings.map((sibling, i) => (
+                                    <DropdownMenuItem key={i} onClick={() => setAllPath(sibling.link)}>
+                                        {sibling.name}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    ) : (
+                        <BreadcrumbLink className="text-lg font-medium cursor-pointer hover:underline" onClick={() => setAllPath(pathElement.slice(0, index + 1).join('/'))}>
+                            {item}
+                        </BreadcrumbLink>
+                    )}
+                </BreadcrumbItem>
+
+                {index < rest_paths.length - 1 && (
+                    <BreadcrumbSeparator>
+                        <Slash className="w-4 h-4 mx-2" />
+                    </BreadcrumbSeparator>
+                )}
+            </span>
+        );
+
+        currentFile = currentFile[item].children || {};
+    });
+
+    return items;
+}
 
 function BreadcrumbListGenerator(Path: string, setAllPath: (path: string) => void, fileTree: FileTree) {
     // This function generates a breadcrumb list based on the provided data.
@@ -39,12 +86,10 @@ function BreadcrumbListGenerator(Path: string, setAllPath: (path: string) => voi
     } else {
         const pathElement = Path.split('/');
         const long_path = pathElement.length > 3;
-        let rest_paths = pathElement.slice(1);
+        let rest_paths = pathElement;
         if (long_path) {
             rest_paths = pathElement.slice(-2);
         }
-        //TODO
-        // let currentFile: FileTree = fileTree;
 
         return (
             <BreadcrumbList>
@@ -66,20 +111,7 @@ function BreadcrumbListGenerator(Path: string, setAllPath: (path: string) => voi
                     <Slash className="w-4 h-4 mx-2" />
                 </BreadcrumbSeparator>
 
-                {rest_paths.map((item, index) => (
-                    <span key={index} className="flex items-center">
-                        <BreadcrumbItem>
-                            <BreadcrumbLink className="text-lg font-medium hover:cursor-pointer" onClick={() => setAllPath(pathElement.slice(index).join('/'))}>
-                                {item}
-                            </BreadcrumbLink>
-                        </BreadcrumbItem>
-                        {index < rest_paths.length - 1 && (
-                            <BreadcrumbSeparator>
-                                <Slash className="w-4 h-4 mx-2" />
-                            </BreadcrumbSeparator>
-                        )}
-                    </span>
-                ))}
+                {BreadcrumbSubPart(rest_paths, fileTree)}
             </BreadcrumbList>
         );
     }

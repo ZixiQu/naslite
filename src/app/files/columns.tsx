@@ -93,25 +93,29 @@ export const columns: ColumnDef<File>[] = [
                             <DropdownMenuLabel className="text-muted-foreground">Quick Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
 
-                            <DropdownMenuItem onClick={handlePreview} className="cursor-pointer">
-                                <Eye className="mr-2 h-4 w-4" />
-                                Preview
-                            </DropdownMenuItem>
-
-                            <DropdownMenuItem onClick={handleDownload} className="cursor-pointer">
-                                <Download className="mr-2 h-4 w-4" />
-                                Download
-                            </DropdownMenuItem>
-
                             <DropdownMenuItem onClick={() => navigator.clipboard.writeText(file.name)} className="cursor-pointer">
                                 <Clipboard className="mr-2 h-4 w-4" />
                                 Copy Name
                             </DropdownMenuItem>
 
-                            <DropdownMenuItem onClick={() => setOpen(true)} className="text-red-600 focus:text-red-700 hover:bg-red-50 dark:hover:bg-red-900 cursor-pointer">
-                                <Trash className="mr-2 h-4 w-4" />
-                                Delete
-                            </DropdownMenuItem>
+                            {file.type !== 'DIR' && (
+                                <>
+                                    <DropdownMenuItem onClick={handleDownload} className="cursor-pointer">
+                                        <Download className="mr-2 h-4 w-4" />
+                                        Download
+                                    </DropdownMenuItem>
+
+                                    <DropdownMenuItem onClick={handlePreview} className="cursor-pointer">
+                                        <Eye className="mr-2 h-4 w-4" />
+                                        Preview
+                                    </DropdownMenuItem>
+
+                                    <DropdownMenuItem onClick={() => setOpen(true)} className="text-red-600 focus:text-red-700 hover:bg-red-50 dark:hover:bg-red-900 cursor-pointer">
+                                        <Trash className="mr-2 h-4 w-4" />
+                                        Delete
+                                    </DropdownMenuItem>
+                                </>
+                            )}
                         </DropdownMenuContent>
                     </DropdownMenu>
 

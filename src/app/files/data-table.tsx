@@ -8,16 +8,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { SuccessDialog } from '@/components/ui/success-dialog';
-import { setCurrentPath } from '@/lib/path';
 import { File } from '@/lib/file-types';
+import { usePath } from '@/lib/path-context';
+import { GetPaths } from './page';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
-    setPath: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export function DataTable<TData, TValue>({ columns, data, setPath }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
     const [open, setOpen] = useState(false);
     const [sorting, setSorting] = useState<SortingState>([]);
     const [folderName, setFolderName] = useState('');
@@ -25,6 +25,7 @@ export function DataTable<TData, TValue>({ columns, data, setPath }: DataTablePr
     const [isPending, startTransition] = useTransition();
     const [folderCreated, setfolderCreated] = useState(false);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+    const { setFileTree, setAllPath } = usePath();
     const table = useReactTable({
         data,
         columns,
@@ -61,11 +62,17 @@ export function DataTable<TData, TValue>({ columns, data, setPath }: DataTablePr
                 if (!response.ok) {
                     throw new Error('Failed to create folder');
                 }
+
+                const refetchFileTree = await GetPaths();
+                if (refetchFileTree.error) {
+                    setError(refetchFileTree.error);
+                    return;
+                }
+                setFileTree(refetchFileTree.paths);
                 setFolderName('');
                 setOpen(false);
                 setError('');
                 setfolderCreated(true);
-                console.log('Folder created successfully:', folderName);
             } catch {
                 setError('Failed to create folder — name may be duplicate or invalid.');
             }
@@ -139,8 +146,7 @@ export function DataTable<TData, TValue>({ columns, data, setPath }: DataTablePr
                                     data-state={row.getIsSelected() && 'selected'}
                                     {...((row.original as File).type === 'DIR' && {
                                         onClick: () => {
-                                            setPath((row.original as File).link);
-                                            // setCurrentPath((row.original as File).link);
+                                            setAllPath((row.original as File).link);
                                         }
                                     })}
                                     className={(row.original as File).type === 'DIR' ? 'hover:underline cursor-pointer' : ''}
