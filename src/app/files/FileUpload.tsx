@@ -5,12 +5,15 @@ import { useDropzone } from 'react-dropzone';
 import { UploadCloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SuccessDialog } from '@/components/ui/success-dialog';
+import { GetPaths } from './page';
+import { usePath } from '@/lib/path-context';
 
 export function FileUpload() {
     const [files, setFiles] = useState<File[]>([]);
     const [error, setError] = useState('');
     const [isPending, startTransition] = useTransition();
     const [fileUpload, setFileUpload] = useState(false);
+    const { setFileTree } = usePath();
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
         setFiles(acceptedFiles);
@@ -35,12 +38,18 @@ export function FileUpload() {
 
                 const result = await fetch('/api/upload', {
                     method: 'POST',
-                    body: formData,
+                    body: formData
                 });
 
                 if (!result.ok) {
                     throw new Error('Upload failed');
                 }
+                const refetchFileTree = await GetPaths();
+                if (refetchFileTree.error) {
+                    setError(refetchFileTree.error);
+                    return;
+                }
+                setFileTree(refetchFileTree.paths);
                 setFileUpload(true);
                 setFiles([]);
             } catch {

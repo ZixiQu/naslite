@@ -33,35 +33,40 @@ export async function GetPaths(): Promise<{ paths: FileTree; error?: string }> {
 function DataTableSection() {
     const [files, setFiles] = useState<File[]>([]);
     const [error, setError] = useState('');
-    const { Path, setFileTree } = usePath();
+    const { Path, FileTree, setFileTree } = usePath();
 
     useEffect(() => {
         async function fetchData() {
             const { paths, error } = await GetPaths();
-            setFileTree(paths);
             if (error) {
                 setError(error);
                 return;
             }
 
-            console.log('Paths:', Path);
-
-            if (!Path) {
-                setFiles(Object.values(paths) as unknown as File[]);
-            } else {
-                const pathElement = Path.split('/');
-                let nestedFile: FileTree | undefined = paths;
-                for (const next_path of pathElement) {
-                    console.log('Next path:', next_path);
-                    if (!nestedFile[next_path] || nestedFile[next_path].type !== 'DIR') break;
-                    nestedFile = nestedFile[next_path].children || {};
-                    setFiles(Object.values(nestedFile) as unknown as File[]);
-                }
-            }
+            setFileTree(paths);
         }
 
         fetchData();
-    }, [Path, setFileTree]);
+    }, []);
+
+    useEffect(() => {
+        if (!FileTree) return;
+
+        if (!Path) {
+            setFiles(Object.values(FileTree) as unknown as File[]);
+        } else {
+            const pathElement = Path.split('/');
+            let nestedFile: FileTree | undefined = FileTree;
+
+            for (const next_path of pathElement) {
+                if (!nestedFile[next_path] || nestedFile[next_path].type !== 'DIR') break;
+                nestedFile = nestedFile[next_path].children || {};
+            }
+
+            setFiles(Object.values(nestedFile) as unknown as File[]);
+        }
+    }, [Path, FileTree]);
+
 
     if (error) {
         return <div>Error: {error}</div>;
