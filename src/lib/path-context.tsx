@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { getCurrentPath } from '@/lib/path-client';
 import { FileTree } from '@/lib/file-types';
 import { setCurrentPath } from '@/lib/path-client';
+import { usePathname } from 'next/navigation';
 
 type PathContextType = {
     Path: string;
@@ -18,8 +19,15 @@ export function PathProvider({ children }: { children: ReactNode }) {
     const [Path, setPath] = useState('');
     const [FileTree, setFileTree] = useState<FileTree>({});
     const [loading, setLoading] = useState(true);
+    const pathname = usePathname();
+    const isHome = pathname === '/' || pathname === '/signin' || pathname === '/signup' || pathname === '/404' || pathname === '/signout';
 
     useEffect(() => {
+        if (isHome) {
+            setLoading(false);
+            return;
+        }
+
         const loadInitial = async () => {
             try {
                 const savedPath = await getCurrentPath();
@@ -52,7 +60,7 @@ export function PathProvider({ children }: { children: ReactNode }) {
     }
 
     if (loading) {
-        return <div className="text-6xl flex justify-center item-center">Loading...</div>;
+        return <div className="text-4xl flex justify-center item-center">Loading...</div>;
     }
 
     return <PathContext.Provider value={{ Path, FileTree, setFileTree, setAllPath }}>{children}</PathContext.Provider>;
