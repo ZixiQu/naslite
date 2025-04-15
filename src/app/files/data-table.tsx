@@ -8,13 +8,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { SuccessDialog } from '@/components/ui/success-dialog';
+import { setCurrentPath } from '@/lib/path';
+import { File } from '@/lib/file-types';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
+    setPath: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
+export function DataTable<TData, TValue>({ columns, data, setPath }: DataTableProps<TData, TValue>) {
     const [open, setOpen] = useState(false);
     const [sorting, setSorting] = useState<SortingState>([]);
     const [folderName, setFolderName] = useState('');
@@ -131,7 +134,17 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map(row => (
-                                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                                <TableRow
+                                    key={row.id}
+                                    data-state={row.getIsSelected() && 'selected'}
+                                    {...((row.original as File).type === 'DIR' && {
+                                        onClick: () => {
+                                            setPath((row.original as File).link);
+                                            // setCurrentPath((row.original as File).link);
+                                        }
+                                    })}
+                                    className={(row.original as File).type === 'DIR' ? 'hover:underline cursor-pointer' : ''}
+                                >
                                     {row.getVisibleCells().map(cell => (
                                         <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                                     ))}

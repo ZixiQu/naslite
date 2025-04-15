@@ -10,7 +10,7 @@ import { usePathname } from 'next/navigation';
 import { setCurrentPath, getCurrentPath } from '@/lib/path';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbEllipsis, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { FileType } from '@/lib/file-types';
+import { FileTree } from '@/lib/file-types';
 import { useState } from 'react';
 
 const geistSans = Geist({
@@ -23,14 +23,7 @@ const geistMono = Geist_Mono({
     subsets: ['latin']
 });
 
-type FileSystemNode = {
-    name: string;
-    type: FileType;
-    href: string;
-    children?: FileSystemNode[];
-};
-
-function BreadcrumbListGenerator(currentPath: string, paths: FileSystemNode[]) {
+function BreadcrumbListGenerator(currentPath: string, paths: FileTree) {
     // This function generates a breadcrumb list based on the provided paths.
     // It can fit any length of paths.
 
@@ -98,9 +91,7 @@ export default function RootLayout({
     const { data: session } = authClient.useSession();
     const pathname = usePathname();
     const isHome = pathname === '/';
-    // let currentPath = getCurrentPath();
     const [currentPath, setCurrentPath] = useState('');
-    // const [paths, setPaths] = useState<FileSystemNode[]>([]);
 
     const paths = [
         {

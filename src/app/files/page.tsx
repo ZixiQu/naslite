@@ -1,106 +1,75 @@
-"use client"
+'use client';
 
-import { authClient } from "@/lib/auth-client" // import the auth client
-import { columns } from "./columns"
-import { type File } from "@/lib/file-types"
-import { DataTable } from "./data-table"
-import { FileUpload } from "./FileUpload"
+import { authClient } from '@/lib/auth-client'; // import the auth client
+import { columns } from './columns';
+import { type File, type FileTree } from '@/lib/file-types';
+import { DataTable } from './data-table';
+import { FileUpload } from './FileUpload';
 import NotLoggedInPage from '../401/page';
 import { setCurrentPath, getCurrentPath } from '@/lib/path';
-import { FileType } from '@/lib/file-types';
-import { useState } from "react"
+import { Suspense, useEffect, useState } from 'react';
 
+// GET /api/list
+async function GetPaths(): Promise<{ paths: FileTree; error?: string }> {
+    try {
+        const result = await fetch('/api/list', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
 
-const files: File[] = [
-    {
-        name: 'Project Report',
-        size: 1240,
-        type: 'PDF',
-        link: '/files/project-report.pdf'
-    },
-    {
-        name: 'Design Mockup',
-        size: 856,
-        type: 'PNG',
-        link: '/files/design-mockup.png'
-    },
-    {
-        name: 'Meeting Notes',
-        size: 48,
-        type: 'TXT',
-        link: '/files/meeting-notes.txt'
-    },
-    {
-        name: 'Product Demo',
-        size: 153600,
-        type: 'DIR',
-        link: '/files/product-demo.mp4'
-    },
-    {
-        name: 'Theme Music',
-        size: 9200,
-        type: 'MP3',
-        link: '/files/theme-music.mp3'
-    },
-    {
-        name: 'Archive Backup',
-        size: 32200,
-        type: 'ZIP',
-        link: '/files/archive-backup.zip'
-    },
-    {
-        name: 'Team Plan',
-        size: 1024,
-        type: 'DOCX',
-        link: '/files/team-plan.docx'
-    },
-    {
-        name: 'Budget Sheet',
-        size: 2048,
-        type: 'XLSX',
-        link: '/files/budget-sheet.xlsx'
+        if (!result.ok) {
+            throw new Error('Failed to fetch paths');
+        }
+
+        const data = await result.json();
+        return { paths: data as FileTree };
+    } catch {
+        return { paths: {}, error: 'Failed to fetch paths' };
     }
-];
+}
+
+function DataTableSection() {
+    const [files, setFiles] = useState<File[]>([]);
+    const [error, setError] = useState('');
+    const [currentPath, setPath] = useState('');
+
+    useEffect(() => {
+        async function fetchData() {
+            const { paths, error } = await GetPaths();
+            if (error) {
+                setError(error);
+                return;
+            }
+
+            console.log('Paths:', currentPath);
+
+            if (!currentPath) {
+                setFiles(Object.values(paths) as unknown as File[]);
+            } else {
+                //TODO
+                setFiles([]);
+            }
+        }
+
+        fetchData();
+    }, [currentPath]);
+
+    if (error) {
+        return <div>Error: {error}</div>;
+    }
+
+    return <DataTable columns={columns} data={files} setPath={setPath} />;
+}
 
 export default function Page() {
     // Retrieve the session using Better Auth's server-side API
     const {
         data: session,
         isPending, //loading state
-        error, //error object
-        refetch //refetch the session
+        error //error object
     } = authClient.useSession();
-
-    // let currentPath = getCurrentPath();
-    const [currentPath, setCurrentPath] = useState('');
-    // const [paths, setPaths] = useState<FileSystemNode[]>([]);
-
-    const paths = [
-        {
-            name: 'sandbox.txt',
-            type: 'TXT', // type is not "DIR", no children
-            href: '/sandbox.txt'
-        },
-        {
-            name: 'Components',
-            type: 'DIR', // type is "DIR", must have children (Object[]), even is empty (empty folder)
-            href: '/Components/',
-            children: [
-                {
-                    name: 'ui',
-                    type: 'DIR',
-                    href: '/Components/ui',
-                    children: [
-                        {
-                            name: 'Button.tsx',
-                            href: '/Components/ui/Button.tsx',
-                            type: 'UNKNOWN',
-                        }
-                    ]
-                }
-            ]
-        }
-    ];
 
     if (isPending) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
@@ -112,7 +81,9 @@ export default function Page() {
                     <div className="flex w-full">
                         {/* Left section: 2/3 */}
                         <div className="w-2/3 flex items-center justify-center">
-                            <DataTable columns={columns} data={files} />
+                            <Suspense fallback={<div>Loading...</div>}>
+                                <DataTableSection />
+                            </Suspense>
                         </div>
 
                         {/* Right section: 1/3 */}
@@ -127,3 +98,5 @@ export default function Page() {
         </div>
     );
 }
+
+export const dynamic = 'force-dynamic';
