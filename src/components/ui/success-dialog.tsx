@@ -19,8 +19,8 @@ export function SuccessDialog({ open, message, onClose }: SuccessDialogProps) {
                     <AlertDialogDescription className="text-base text-muted-foreground">{message}</AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter className="flex justify-center mt-4">
-                    <AlertDialogAction onClick={onClose} className="px-6 py-2">
-                        Back
+                    <AlertDialogAction onClick={onClose} className="px-6 py-2 cursor-pointer">
+                        OK
                     </AlertDialogAction>
                 </AlertDialogFooter>
             </AlertDialogContent>

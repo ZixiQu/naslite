@@ -25,7 +25,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     const [isPending, startTransition] = useTransition();
     const [folderCreated, setfolderCreated] = useState(false);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-    const { setFileTree, setAllPath } = usePath();
+    const { Path, setFileTree, setAllPath } = usePath();
     const table = useReactTable({
         data,
         columns,
@@ -79,13 +79,23 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
         });
     }
 
+    function goBack(Path: string) {
+        console.log('Path:', Path);
+        if (!Path) return;
+        const parts = Path.split('/').filter(Boolean); // remove empty from leading/trailing slashes
+        const newParts = parts.slice(0, -1); // remove last part
+        const newPath = newParts.join('/');
+        console.log('New Path:', newPath);
+        setAllPath(newPath);
+    }
+
     return (
         <div className="flex flex-col space-y-4 w-3/4">
             <div className="flex items-center p-4 justify-between mb-5">
                 <Input placeholder="Filter names..." value={(table.getColumn('name')?.getFilterValue() as string) ?? ''} onChange={event => table.getColumn('name')?.setFilterValue(event.target.value)} className="max-w-xl h-12 text-lg px-5" />
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
-                        <Button variant="outline" size="lg" className="ml-2 max-w-xl h-12 text-md px-5">
+                        <Button variant="outline" size="lg" className="ml-2 max-w-xl h-12 text-md px-5 cursor-pointer">
                             Create New Folder
                         </Button>
                     </DialogTrigger>
@@ -118,13 +128,17 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                                     }
                                 }}
                                 disabled={isPending}
-                                className={`h-12 transition-opacity duration-300 ${isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`h-12 transition-opacity duration-300 ${isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                             >
                                 Create
                             </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
+
+                <Button variant="ghost" size="lg" className="ml-2 max-w-xl h-12 text-md px-5 cursor-pointer" onClick={() => goBack(Path)} disabled={Path === ''}>
+                    Back
+                </Button>
             </div>
             <SuccessDialog open={folderCreated} message="Folder created successfully." onClose={() => setfolderCreated(false)} />
             <div className="rounded-md">
