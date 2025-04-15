@@ -24,8 +24,10 @@ const geistMono = Geist_Mono({
     subsets: ['latin']
 });
 
-function BreadcrumbSubPart(rest_paths: string[], fileTree: FileTree): JSX.Element[] {
+function BreadcrumbSubPart(rest_paths: string[], fileTree: FileTree, setAllPath: (path: string) => void): JSX.Element[] {
     const items: JSX.Element[] = [];
+    console.log('Rest paths:', rest_paths);
+    console.log('File tree:', fileTree);
     let currentFile: FileTree = fileTree;
 
     rest_paths.forEach((item, index) => {
@@ -50,7 +52,7 @@ function BreadcrumbSubPart(rest_paths: string[], fileTree: FileTree): JSX.Elemen
                             </DropdownMenuContent>
                         </DropdownMenu>
                     ) : (
-                        <BreadcrumbLink className="text-lg font-medium cursor-pointer hover:underline" onClick={() => setAllPath(pathElement.slice(0, index + 1).join('/'))}>
+                        <BreadcrumbLink className="text-lg font-medium cursor-pointer hover:underline" onClick={() => setAllPath(currentFile[item].link)}>
                             {item}
                         </BreadcrumbLink>
                     )}
@@ -63,6 +65,8 @@ function BreadcrumbSubPart(rest_paths: string[], fileTree: FileTree): JSX.Elemen
                 )}
             </span>
         );
+
+        console.log(item);
 
         currentFile = currentFile[item].children || {};
     });
@@ -111,7 +115,7 @@ function BreadcrumbListGenerator(Path: string, setAllPath: (path: string) => voi
                     <Slash className="w-4 h-4 mx-2" />
                 </BreadcrumbSeparator>
 
-                {BreadcrumbSubPart(rest_paths, fileTree)}
+                {BreadcrumbSubPart(rest_paths, fileTree, setAllPath)}
             </BreadcrumbList>
         );
     }
@@ -124,7 +128,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-neutral-50`}>
+            <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-neutral-50 justify-center items-center flex flex-col`}>
                 <PathProvider>
                     <Layout>{children}</Layout>
                 </PathProvider>
