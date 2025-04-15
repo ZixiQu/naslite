@@ -31,31 +31,39 @@ function BreadcrumbSubPart(rest_paths: string[], fileTree: FileTree, setAllPath:
     let currentFile: FileTree = fileTree;
 
     rest_paths.forEach((item, index) => {
-        const siblings = (Object.values(currentFile) as File[]).filter(file => file.name !== item);
+        const item_file = currentFile[item] as unknown as File;
+        const item_link = item_file?.link || '';
+        const siblings = (Object.values(currentFile) as File[]).filter(file => file.name !== item && file.type === 'DIR');
         const dropdown = siblings.length > 0;
+
+        console.log('Current file:', item_link);
+        console.log('Item:', item);
 
         items.push(
             <span key={index} className="flex items-center">
                 <BreadcrumbItem>
-                    {dropdown ? (
-                        <DropdownMenu>
-                            <DropdownMenuTrigger className="flex items-center gap-1 text-lg font-medium cursor-pointer hover:underline">
-                                {item}
-                                <ChevronDownIcon className="w-4 h-4" />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="start">
-                                {siblings.map((sibling, i) => (
-                                    <DropdownMenuItem key={i} onClick={() => setAllPath(sibling.link)}>
-                                        {sibling.name}
-                                    </DropdownMenuItem>
-                                ))}
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-                    ) : (
-                        <BreadcrumbLink className="text-lg font-medium cursor-pointer hover:underline" onClick={() => setAllPath(currentFile[item].link)}>
+                    <div className="flex items-center gap-1">
+                        <BreadcrumbLink className="text-lg font-medium cursor-pointer hover:underline" onClick={() => setAllPath(item_link)}>
                             {item}
                         </BreadcrumbLink>
-                    )}
+
+                        {index < rest_paths.length - 1 && dropdown && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <button className="p-0 m-0">
+                                        <ChevronDownIcon className="w-4 h-4 text-muted-foreground cursor-pointer" />
+                                    </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    {siblings.map((sibling, i) => (
+                                        <DropdownMenuItem key={i} onClick={() => setAllPath(sibling.link)}>
+                                            {sibling.name}
+                                        </DropdownMenuItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
+                    </div>
                 </BreadcrumbItem>
 
                 {index < rest_paths.length - 1 && (
@@ -65,8 +73,6 @@ function BreadcrumbSubPart(rest_paths: string[], fileTree: FileTree, setAllPath:
                 )}
             </span>
         );
-
-        console.log(item);
 
         currentFile = currentFile[item].children || {};
     });
