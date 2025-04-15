@@ -91,8 +91,13 @@ function BreadcrumbListGenerator(Path: string, setAllPath: (path: string) => voi
         const pathElement = Path.split('/');
         const long_path = pathElement.length > 3;
         let rest_paths = pathElement;
+        let newFileTree: FileTree = fileTree;
         if (long_path) {
             rest_paths = pathElement.slice(-2);
+            for (const next_path of pathElement.slice(0, -2)) {
+                if (!newFileTree[next_path] || newFileTree[next_path].type !== 'DIR') break;
+                newFileTree = newFileTree[next_path].children || {};
+            }
         }
 
         return (
@@ -115,7 +120,7 @@ function BreadcrumbListGenerator(Path: string, setAllPath: (path: string) => voi
                     <Slash className="w-4 h-4 mx-2" />
                 </BreadcrumbSeparator>
 
-                {BreadcrumbSubPart(rest_paths, fileTree, setAllPath)}
+                {BreadcrumbSubPart(rest_paths, newFileTree, setAllPath)}
             </BreadcrumbList>
         );
     }
