@@ -1,7 +1,7 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
-import { getCurrentPath } from "@/lib/path"
+import { getCurrentPath, trimAndNormalizePath } from "@/lib/path"
 
 const s3Client = new S3Client({
   endpoint: process.env.SPACES_ENDPOINT, // https://nyc3.digitaloceanspaces.com
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
 
     const fileBuffer = Buffer.from(await file.arrayBuffer());
     const currentPath = await getCurrentPath();
-    const key = `${user_id}/${currentPath}/${file.name}`;
+    const key = trimAndNormalizePath(`${user_id}/${currentPath}/${file.name}`);
 
     const command = new PutObjectCommand({
       Bucket: process.env.SPACES_BUCKET, // next-app-files
