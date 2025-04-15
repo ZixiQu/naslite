@@ -1,12 +1,11 @@
 'use client';
 
-import { authClient } from '@/lib/auth-client'; // import the auth client
+import { authClient } from '@/lib/auth-client';
 import { columns } from './columns';
 import { type File, type FileTree } from '@/lib/file-types';
 import { DataTable } from './data-table';
 import { FileUpload } from './FileUpload';
 import NotLoggedInPage from '../401/page';
-import { setCurrentPath, getCurrentPath } from '@/lib/path';
 import { Suspense, useEffect, useState } from 'react';
 
 // GET /api/list
@@ -48,8 +47,14 @@ function DataTableSection() {
             if (!currentPath) {
                 setFiles(Object.values(paths) as unknown as File[]);
             } else {
-                //TODO
-                setFiles([]);
+                const pathElement = currentPath.split('/');
+                let nestedFile: FileTree | undefined = paths;
+                for (const next_path of pathElement) {
+                    console.log('Next path:', next_path);
+                    if (!nestedFile[next_path] || nestedFile[next_path].type !== 'DIR') break;
+                    nestedFile = nestedFile[next_path].children || {};
+                    setFiles(nestedFile as unknown as File[]);
+                }
             }
         }
 

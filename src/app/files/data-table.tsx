@@ -153,7 +153,7 @@ export function DataTable<TData, TValue>({ columns, data, setPath }: DataTablePr
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No results.
+                                    No files found.
                                 </TableCell>
                             </TableRow>
                         )}
