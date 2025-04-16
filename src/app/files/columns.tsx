@@ -94,8 +94,13 @@ export const columns: ColumnDef<File>[] = [
             const { setFileTree } = usePath();
             const [open, setOpen] = useState(false);
             const [deleteLink, setdeleteLink] = useState('');
+            const [isProcessing, setIsProcessing] = useState(false);
 
             const handlePreview = async (link: string) => {
+                if (isProcessing) return;
+                setIsProcessing(true);
+                toast.info('Preparing preview...');
+
                 try {
                     const response = await fetch(`/api/file?key=${link}`);
                     if (!response.ok) throw new Error('Something went wrong while fetching the preview link');
@@ -106,10 +111,16 @@ export const columns: ColumnDef<File>[] = [
                     window.open(url, '_blank');
                 } catch {
                     toast.error('Failed to load preview');
+                } finally {
+                    setIsProcessing(false);
                 }
             };
 
             async function handleDelete() {
+                if (isProcessing) return;
+                setIsProcessing(true);
+                toast.info('Deleting file...');
+
                 try {
                     const response = await fetch(`/api/delete?key=${deleteLink}`, {
                         method: 'DELETE',
@@ -130,10 +141,15 @@ export const columns: ColumnDef<File>[] = [
                     setFileTree(refetchFileTree.paths);
                     setdeleteLink('');
                     setOpen(false);
+                    setIsProcessing(false);
                 }
             }
 
             const handleDownload = async (link: string) => {
+                if (isProcessing) return;
+                setIsProcessing(true);
+                toast.info('Preparing download...');
+
                 try {
                     const response = await fetch(`/api/file?key=${link}&mode=download&response-content-disposition=attachment`);
                     if (!response.ok) throw new Error('Something went wrong while fetching the download link');
@@ -151,6 +167,8 @@ export const columns: ColumnDef<File>[] = [
                 } catch (error) {
                     toast.error('Failed to download file');
                     console.error('Download error:', error);
+                } finally {
+                    setIsProcessing(false);
                 }
             };
 
@@ -175,7 +193,8 @@ export const columns: ColumnDef<File>[] = [
                             {file.type !== 'DIR' && (
                                 <>
                                     <DropdownMenuItem
-                                        onClick={() => {
+                                        onClick={e => {
+                                            e.stopPropagation();
                                             handleDownload(file.link);
                                         }}
                                         className="cursor-pointer"
@@ -184,13 +203,20 @@ export const columns: ColumnDef<File>[] = [
                                         Download
                                     </DropdownMenuItem>
 
-                                    <DropdownMenuItem onClick={() => handlePreview(file.link)} className="cursor-pointer">
+                                    <DropdownMenuItem
+                                        onClick={e => {
+                                            e.stopPropagation();
+                                            handlePreview(file.link);
+                                        }}
+                                        className="cursor-pointer"
+                                    >
                                         <Eye className="mr-2 h-4 w-4" />
                                         Preview
                                     </DropdownMenuItem>
 
                                     <DropdownMenuItem
-                                        onClick={() => {
+                                        onClick={e => {
+                                            e.stopPropagation();
                                             setdeleteLink(file.link);
                                             setOpen(true);
                                         }}
@@ -213,9 +239,22 @@ export const columns: ColumnDef<File>[] = [
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                                <AlertDialogCancel onClick={() => setOpen(false)}>Cancel</AlertDialogCancel>
-                                <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700 text-white">
-                                    Confirm
+                                <AlertDialogCancel
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        setOpen(false);
+                                    }}
+                                >
+                                    Cancel
+                                </AlertDialogCancel>
+                                <AlertDialogAction
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        handleDelete();
+                                    }}
+                                    className="bg-red-600 hover:bg-red-700 text-white"
+                                >
+                                    {isProcessing ? 'Deleting...' : 'Confirm'}
                                 </AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>
