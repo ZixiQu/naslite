@@ -27,30 +27,25 @@ export async function GET(req: NextRequest) {
   const user_id = session.user.id;
   const { searchParams } = new URL(req.url);
   const key = searchParams.get("key");
+  const mode = searchParams.get('mode');
 
   if (!key) {
-    return NextResponse.json(
-      { error: "Missing key" },
-      { status: 400 }
-    );
+      return NextResponse.json({ error: 'Missing key' }, { status: 400 });
   }
-  
-  try {
-    const command = new GetObjectCommand({
-      Bucket: process.env.SPACES_BUCKET,
-      Key: `${user_id}/${key}`,
-    });
-  
-    const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 * 5 });
-  
-    return NextResponse.json({ url: signedUrl });
 
-  } catch(error) {
-    console.error("Retrieve error: ", error);
-    return NextResponse.json(
-      { error: "Failed to retrieve file" },
-      { status: 500 }
-    );
+  try {
+      const command = new GetObjectCommand({
+          Bucket: process.env.SPACES_BUCKET,
+          Key: `${user_id}/${key}`,
+          ...(mode === 'download' && { ResponseContentDisposition: `attachment; filename="${key.split('/').pop()}"` })
+      });
+
+      const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 60 * 5 });
+
+      return NextResponse.json({ url: signedUrl });
+  } catch (error) {
+      console.error('Retrieve error: ', error);
+      return NextResponse.json({ error: 'Failed to retrieve file' }, { status: 500 });
   }
   
 }

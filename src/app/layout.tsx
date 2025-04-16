@@ -13,6 +13,7 @@ import { FileTree, type File } from '@/lib/file-types';
 import { PathProvider } from '@/lib/path-context';
 import { usePath } from '@/lib/path-context';
 import { JSX } from 'react';
+import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -143,6 +144,7 @@ export default function RootLayout({
                 <PathProvider>
                     <Layout>{children}</Layout>
                 </PathProvider>
+                <Toaster richColors position="top-right" />
             </body>
         </html>
     );
@@ -163,7 +165,7 @@ function Layout({ children }: { children: React.ReactNode }) {
                     <Breadcrumb className={`ml-4 ${session && !isHome ? 'flex' : 'hidden'}`}>{BreadcrumbListGenerator(Path, setAllPath, FileTree)}</Breadcrumb>
                 </div>
 
-                <div className="flex items-center justify-center min-h-full w-full">{children}</div>
+                <div className="flex items-top justify-center min-h-full w-full">{children}</div>
             </main>
         </SidebarProvider>
     );
