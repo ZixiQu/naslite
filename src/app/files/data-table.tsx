@@ -80,12 +80,10 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     }
 
     function goBack(Path: string) {
-        console.log('Path:', Path);
         if (!Path) return;
         const parts = Path.split('/').filter(Boolean); // remove empty from leading/trailing slashes
         const newParts = parts.slice(0, -1); // remove last part
         const newPath = newParts.join('/');
-        console.log('New Path:', newPath);
         setAllPath(newPath);
     }
 

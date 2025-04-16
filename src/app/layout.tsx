@@ -13,6 +13,7 @@ import { FileTree, type File } from '@/lib/file-types';
 import { PathProvider } from '@/lib/path-context';
 import { usePath } from '@/lib/path-context';
 import { JSX } from 'react';
+import { Toaster } from '@/components/ui/sonner';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -143,6 +144,7 @@ export default function RootLayout({
                 <PathProvider>
                     <Layout>{children}</Layout>
                 </PathProvider>
+                <Toaster richColors position="top-right" />
             </body>
         </html>
     );
