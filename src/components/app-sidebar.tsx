@@ -47,6 +47,9 @@ export function AppSidebar() {
     const items = session
         ? [
               {
+                title: session.user.name,
+              },
+              {
                   title: 'Sign Out',
                   url: '/signout',
                   icon: LogIn
@@ -80,7 +83,7 @@ export function AppSidebar() {
                                 <SidebarMenuItem key={item.title}>
                                     <SidebarMenuButton asChild>
                                         <a href={item.url} className="flex items-center gap-2 p-5">
-                                            <item.icon className="w-5 h-5" />
+                                            {item.icon && <item.icon className="w-5 h-5" />}
                                             <span className="text-lg">{item.title}</span>
                                         </a>
                                     </SidebarMenuButton>
