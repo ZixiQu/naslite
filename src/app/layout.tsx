@@ -157,7 +157,7 @@ function Layout({ children }: { children: React.ReactNode }) {
     const { Path, FileTree, setAllPath } = usePath();
 
     return (
-        <SidebarProvider defaultOpen={false}>
+        <SidebarProvider defaultOpen={true}>
             <AppSidebar />
             <main className="flex-1 min-h-screen overflow-hidden relative">
                 <div className="flex items-center px-4 py-2">

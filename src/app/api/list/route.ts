@@ -103,6 +103,10 @@ export async function GET(req: NextRequest): Promise<NextResponse<FileTree | { e
         });
 
         const response = await s3Client.send(listCommand);
+        if (!response.Contents) {
+            return NextResponse.json({});
+        }
+        
         const files: File[] = [];
         for (const content of response.Contents!) {
             const fullPath = content.Key as string;
@@ -125,7 +129,8 @@ export async function GET(req: NextRequest): Promise<NextResponse<FileTree | { e
         }
         const tree = filesToTree(files);
         return NextResponse.json(tree);
-    } catch {
+    } catch (error) {
+        console.log(error)
         return NextResponse.json({ error: 'Failed to get file list' }, { status: 500 });
     }
 }
