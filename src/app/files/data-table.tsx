@@ -8,6 +8,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { SuccessDialog } from '@/components/ui/success-dialog';
+import { File } from '@/lib/file-types';
+import { usePath } from '@/lib/path-context';
+import { GetPaths } from './page';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -22,6 +25,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     const [isPending, startTransition] = useTransition();
     const [folderCreated, setfolderCreated] = useState(false);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+    const { Path, setFileTree, setAllPath } = usePath();
     const table = useReactTable({
         data,
         columns,
@@ -58,15 +62,31 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                 if (!response.ok) {
                     throw new Error('Failed to create folder');
                 }
+
+                const refetchFileTree = await GetPaths();
+                if (refetchFileTree.error) {
+                    setError(refetchFileTree.error);
+                    return;
+                }
+                setFileTree(refetchFileTree.paths);
                 setFolderName('');
                 setOpen(false);
                 setError('');
                 setfolderCreated(true);
-                console.log('Folder created successfully:', folderName);
             } catch {
                 setError('Failed to create folder — name may be duplicate or invalid.');
             }
         });
+    }
+
+    function goBack(Path: string) {
+        console.log('Path:', Path);
+        if (!Path) return;
+        const parts = Path.split('/').filter(Boolean); // remove empty from leading/trailing slashes
+        const newParts = parts.slice(0, -1); // remove last part
+        const newPath = newParts.join('/');
+        console.log('New Path:', newPath);
+        setAllPath(newPath);
     }
 
     return (
@@ -75,7 +95,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                 <Input placeholder="Filter names..." value={(table.getColumn('name')?.getFilterValue() as string) ?? ''} onChange={event => table.getColumn('name')?.setFilterValue(event.target.value)} className="max-w-xl h-12 text-lg px-5" />
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
-                        <Button variant="outline" size="lg" className="ml-2 max-w-xl h-12 text-md px-5">
+                        <Button variant="outline" size="lg" className="ml-2 max-w-xl h-12 text-md px-5 cursor-pointer">
                             Create New Folder
                         </Button>
                     </DialogTrigger>
@@ -108,13 +128,17 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                                     }
                                 }}
                                 disabled={isPending}
-                                className={`h-12 transition-opacity duration-300 ${isPending ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                className={`h-12 transition-opacity duration-300 ${isPending ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
                             >
                                 Create
                             </Button>
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
+
+                <Button variant="ghost" size="lg" className="ml-2 max-w-xl h-12 text-md px-5 cursor-pointer" onClick={() => goBack(Path)} disabled={Path === ''}>
+                    Back
+                </Button>
             </div>
             <SuccessDialog open={folderCreated} message="Folder created successfully." onClose={() => setfolderCreated(false)} />
             <div className="rounded-md">
@@ -131,7 +155,16 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                     <TableBody>
                         {table.getRowModel().rows?.length ? (
                             table.getRowModel().rows.map(row => (
-                                <TableRow key={row.id} data-state={row.getIsSelected() && 'selected'}>
+                                <TableRow
+                                    key={row.id}
+                                    data-state={row.getIsSelected() && 'selected'}
+                                    {...((row.original as File).type === 'DIR' && {
+                                        onClick: () => {
+                                            setAllPath((row.original as File).link);
+                                        }
+                                    })}
+                                    className={(row.original as File).type === 'DIR' ? 'hover:underline cursor-pointer' : ''}
+                                >
                                     {row.getVisibleCells().map(cell => (
                                         <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
                                     ))}
@@ -140,7 +173,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                         ) : (
                             <TableRow>
                                 <TableCell colSpan={columns.length} className="h-24 text-center">
-                                    No results.
+                                    No files found.
                                 </TableCell>
                             </TableRow>
                         )}

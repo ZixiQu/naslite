@@ -4,14 +4,15 @@ import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
-import { Slash } from 'lucide-react';
+import { ChevronDownIcon, Slash } from 'lucide-react';
 import { authClient } from '@/lib/auth-client';
 import { usePathname } from 'next/navigation';
-import { setCurrentPath, getCurrentPath } from '@/lib/path';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbEllipsis, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import { FileType } from '@/lib/file-types';
-import { useState } from 'react';
+import { FileTree, type File } from '@/lib/file-types';
+import { PathProvider } from '@/lib/path-context';
+import { usePath } from '@/lib/path-context';
+import { JSX } from 'react';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -23,71 +24,112 @@ const geistMono = Geist_Mono({
     subsets: ['latin']
 });
 
-type FileSystemNode = {
-    name: string;
-    type: FileType;
-    href: string;
-    children?: FileSystemNode[];
-};
+function BreadcrumbSubPart(rest_paths: string[], fileTree: FileTree, setAllPath: (path: string) => void): JSX.Element[] {
+    const items: JSX.Element[] = [];
+    console.log('Rest paths:', rest_paths);
+    console.log('File tree:', fileTree);
+    let currentFile: FileTree = fileTree;
 
-function BreadcrumbListGenerator(currentPath: string, paths: FileSystemNode[]) {
-    // This function generates a breadcrumb list based on the provided paths.
+    rest_paths.forEach((item, index) => {
+        const item_file = currentFile[item] as unknown as File;
+        const item_link = item_file?.link || '';
+        const siblings = (Object.values(currentFile) as File[]).filter(file => file.name !== item && file.type === 'DIR');
+        const dropdown = siblings.length > 0;
+
+        console.log('Current file:', item_link);
+        console.log('Item:', item);
+
+        items.push(
+            <span key={index} className="flex items-center">
+                <BreadcrumbItem>
+                    <div className="flex items-center gap-1">
+                        <BreadcrumbLink className="text-lg font-medium cursor-pointer hover:underline" onClick={() => setAllPath(item_link)}>
+                            {item}
+                        </BreadcrumbLink>
+
+                        {index < rest_paths.length - 1 && dropdown && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <button className="p-0 m-0">
+                                        <ChevronDownIcon className="w-4 h-4 text-muted-foreground cursor-pointer" />
+                                    </button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                    {siblings.map((sibling, i) => (
+                                        <DropdownMenuItem key={i} onClick={() => setAllPath(sibling.link)}>
+                                            {sibling.name}
+                                        </DropdownMenuItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
+                    </div>
+                </BreadcrumbItem>
+
+                {index < rest_paths.length - 1 && (
+                    <BreadcrumbSeparator>
+                        <Slash className="w-4 h-4 mx-2" />
+                    </BreadcrumbSeparator>
+                )}
+            </span>
+        );
+
+        currentFile = currentFile[item].children || {};
+    });
+
+    return items;
+}
+
+function BreadcrumbListGenerator(Path: string, setAllPath: (path: string) => void, fileTree: FileTree) {
+    // This function generates a breadcrumb list based on the provided data.
     // It can fit any length of paths.
-
-    if (!currentPath) {
+    if (!Path) {
         return (
             <BreadcrumbList>
                 <BreadcrumbItem>
-                    <BreadcrumbLink href="/" className="text-lg font-medium">
+                    <BreadcrumbLink className="text-lg font-medium hover:cursor-pointer" onClick={() => setAllPath('')}>
                         Home
                     </BreadcrumbLink>
                 </BreadcrumbItem>
             </BreadcrumbList>
         );
+    } else {
+        const pathElement = Path.split('/');
+        const long_path = pathElement.length > 3;
+        let rest_paths = pathElement;
+        let newFileTree: FileTree = fileTree;
+        if (long_path) {
+            rest_paths = pathElement.slice(-2);
+            for (const next_path of pathElement.slice(0, -2)) {
+                if (!newFileTree[next_path] || newFileTree[next_path].type !== 'DIR') break;
+                newFileTree = newFileTree[next_path].children || {};
+            }
+        }
+
+        return (
+            <BreadcrumbList>
+                <BreadcrumbItem>
+                    <BreadcrumbLink className="text-lg font-medium hover:cursor-pointer" onClick={() => setAllPath('')}>
+                        Home
+                    </BreadcrumbLink>
+                </BreadcrumbItem>
+                {long_path && (
+                    <>
+                        <BreadcrumbSeparator>
+                            <Slash className="w-4 h-4 mx-2" />
+                        </BreadcrumbSeparator>
+                        <BreadcrumbEllipsis />
+                    </>
+                )}
+
+                <BreadcrumbSeparator>
+                    <Slash className="w-4 h-4 mx-2" />
+                </BreadcrumbSeparator>
+
+                {BreadcrumbSubPart(rest_paths, newFileTree, setAllPath)}
+            </BreadcrumbList>
+        );
     }
-
-    // const long_path = paths.length > 3;
-    // let rest_paths = paths.slice(1);
-    // if (paths.length > 3) {
-    //     rest_paths = paths.slice(-2);
-    // }
-
-    // return (
-    //     <BreadcrumbList>
-    //         <BreadcrumbItem>
-    //             <BreadcrumbLink href={paths[0].href} className="text-lg font-medium">
-    //                 {paths[0].label}
-    //             </BreadcrumbLink>
-    //         </BreadcrumbItem>
-    //         {long_path && (
-    //             <>
-    //                 <BreadcrumbSeparator>
-    //                     <Slash className="w-4 h-4 mx-2" />
-    //                 </BreadcrumbSeparator>
-    //                 <BreadcrumbEllipsis />
-    //             </>
-    //         )}
-    //         {rest_paths.length > 0 && (
-    //             <BreadcrumbSeparator>
-    //                 <Slash className="w-4 h-4 mx-2" />
-    //             </BreadcrumbSeparator>
-    //         )}
-    //         {rest_paths.map((item, index) => (
-    //             <span key={item.href} className="flex items-center">
-    //                 <BreadcrumbItem>
-    //                     <BreadcrumbLink href={item.href} className="text-lg font-medium">
-    //                         {item.label}
-    //                     </BreadcrumbLink>
-    //                 </BreadcrumbItem>
-    //                 {index < rest_paths.length - 1 && (
-    //                     <BreadcrumbSeparator>
-    //                         <Slash className="w-4 h-4 mx-2" />
-    //                     </BreadcrumbSeparator>
-    //                 )}
-    //             </span>
-    //         ))}
-    //     </BreadcrumbList>
-    // );
 }
 
 export default function RootLayout({
@@ -95,56 +137,34 @@ export default function RootLayout({
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    return (
+        <html lang="en">
+            <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-neutral-50 justify-center items-center flex flex-col`}>
+                <PathProvider>
+                    <Layout>{children}</Layout>
+                </PathProvider>
+            </body>
+        </html>
+    );
+}
+
+function Layout({ children }: { children: React.ReactNode }) {
     const { data: session } = authClient.useSession();
     const pathname = usePathname();
     const isHome = pathname === '/';
-    // let currentPath = getCurrentPath();
-    const [currentPath, setCurrentPath] = useState('');
-    // const [paths, setPaths] = useState<FileSystemNode[]>([]);
-
-    const paths = [
-        {
-            name: 'sandbox.txt',
-            type: 'TXT', // type is not "DIR", no children
-            href: '/sandbox.txt'
-        },
-        {
-            name: 'Components',
-            type: 'DIR', // type is "DIR", must have children (Object[]), even is empty (empty folder)
-            href: '/Components/',
-            children: [
-                {
-                    name: 'ui',
-                    type: 'DIR',
-                    href: '/Components/ui',
-                    children: [
-                        {
-                            name: 'Button.tsx',
-                            href: '/Components/ui/Button.tsx',
-                            type: 'UNKNOWN' // althought we can visualize (display icon) as file, this is not yet supported.
-                        }
-                    ]
-                }
-            ]
-        }
-    ];
+    const { Path, FileTree, setAllPath } = usePath();
 
     return (
-        <html lang="en">
-            <body className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-neutral-50`}>
-                <SidebarProvider defaultOpen={false}>
-                    <AppSidebar />
-                    <main className="flex-1 min-h-screen overflow-hidden relative">
-                        <div className="flex items-center px-4 py-2">
-                            <SidebarTrigger />
-                            <Breadcrumb className={`ml-4 ${session && !isHome ? 'flex' : 'hidden'}`}>{BreadcrumbListGenerator(currentPath, paths)}</Breadcrumb>
-                        </div>
+        <SidebarProvider defaultOpen={false}>
+            <AppSidebar />
+            <main className="flex-1 min-h-screen overflow-hidden relative">
+                <div className="flex items-center px-4 py-2">
+                    <SidebarTrigger />
+                    <Breadcrumb className={`ml-4 ${session && !isHome ? 'flex' : 'hidden'}`}>{BreadcrumbListGenerator(Path, setAllPath, FileTree)}</Breadcrumb>
+                </div>
 
-                        {/* Children */}
-                        <div className="flex items-center justify-center min-h-full w-full">{children}</div>
-                    </main>
-                </SidebarProvider>
-            </body>
-        </html>
+                <div className="flex items-center justify-center min-h-full w-full">{children}</div>
+            </main>
+        </SidebarProvider>
     );
 }
