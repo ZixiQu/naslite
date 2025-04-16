@@ -89,10 +89,10 @@ export default function Page() {
     return (
         <div className="w-full">
             {session?.user?.name ? (
-                <div className="flex">
+                <div className="flex h-full">
                     <div className="flex w-full">
                         {/* Left section: 2/3 */}
-                        <div className="w-2/3 flex items-center justify-center">
+                        <div className="w-2/3 flex items-top justify-center">
                             <Suspense fallback={<div>Loading...</div>}>
                                 <DataTableSection />
                             </Suspense>

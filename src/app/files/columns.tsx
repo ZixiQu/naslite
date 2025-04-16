@@ -2,7 +2,7 @@
 
 import { ColumnDef } from '@tanstack/react-table';
 import { ArrowUpDown, Download, MoreHorizontal, Trash, Clipboard, Eye } from 'lucide-react';
-import { type File } from '@/lib/file-types';
+import { type File , supportedFileTypes} from '@/lib/file-types';
 import { FileImage, FileText, FileVideo, FileAudio, FileArchive, FileType2, FileSpreadsheet, Folder, File as IconFile } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
@@ -54,7 +54,7 @@ export const columns: ColumnDef<File>[] = [
         accessorKey: 'size',
         header: ({ column }) => {
             return (
-                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}>
+                <Button variant="ghost" onClick={() => column.toggleSorting(column.getIsSorted() !== 'desc')}>
                     Size (KB)
                     <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
@@ -63,7 +63,28 @@ export const columns: ColumnDef<File>[] = [
     },
     {
         accessorKey: 'type',
-        header: 'Type'
+        // header: 'Type'
+        header: ({ column }) => {
+            return (
+                <Button variant="ghost" onClick={() => column.toggleSorting()}>
+                    Type
+                    <ArrowUpDown className="ml-2 h-4 w-4" />
+                </Button>
+            );
+        },
+        sortingFn: (rowA: any, rowB: any, columnId: string) => {
+            const a = rowA.getValue(columnId);
+            const b = rowB.getValue(columnId);
+
+            const aIndex = supportedFileTypes.indexOf(a);
+            const bIndex = supportedFileTypes.indexOf(b);
+
+            // Items in the list come first, in order. Others follow after.
+            const safeA = aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex;
+            const safeB = bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex;
+
+            return safeA - safeB;
+        }
     },
 
     {

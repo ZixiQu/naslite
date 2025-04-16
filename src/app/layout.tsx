@@ -165,7 +165,7 @@ function Layout({ children }: { children: React.ReactNode }) {
                     <Breadcrumb className={`ml-4 ${session && !isHome ? 'flex' : 'hidden'}`}>{BreadcrumbListGenerator(Path, setAllPath, FileTree)}</Breadcrumb>
                 </div>
 
-                <div className="flex items-center justify-center min-h-full w-full">{children}</div>
+                <div className="flex items-top justify-center min-h-full w-full">{children}</div>
             </main>
         </SidebarProvider>
     );

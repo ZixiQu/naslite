@@ -1,4 +1,4 @@
-export const supportedFileTypes = ['PNG', 'TXT', 'MP4', 'MP3', 'PDF', 'ZIP', 'DOCX', 'XLSX', 'DIR', 'JPG', 'JPEG'] as const
+export const supportedFileTypes = ['DIR', 'MP4', 'MP3', 'JPG', 'JPEG', 'PNG', 'TXT', 'PDF', 'DOCX', 'XLSX', 'ZIP'] as const
 export type FileType = typeof supportedFileTypes[number]
 
 // This type is used to define the shape of our data.

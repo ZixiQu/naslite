@@ -12,6 +12,7 @@ import { File } from '@/lib/file-types';
 import { usePath } from '@/lib/path-context';
 import { GetPaths } from './page';
 import { ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -20,13 +21,17 @@ interface DataTableProps<TData, TValue> {
 
 export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
     const [open, setOpen] = useState(false);
-    const [sorting, setSorting] = useState<SortingState>([]);
+    const [sorting, setSorting] = useState<SortingState>([{ id: "type", desc: false }]);
     const [folderName, setFolderName] = useState('');
     const [error, setError] = useState('');
     const [isPending, startTransition] = useTransition();
     const [folderCreated, setfolderCreated] = useState(false);
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
     const { Path, setFileTree, setAllPath } = usePath();
+    const [pagination, setPagination] = useState({
+        pageIndex: 0,
+        pageSize: 12,
+      });
     const table = useReactTable({
         data,
         columns,
@@ -36,13 +41,11 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
         getSortedRowModel: getSortedRowModel(),
         onColumnFiltersChange: setColumnFilters,
         getFilteredRowModel: getFilteredRowModel(),
+        onPaginationChange: setPagination,
         state: {
             sorting,
             columnFilters,
-            pagination: {
-                pageIndex: 0,
-                pageSize: 15
-            }
+            pagination
         }
     });
 
@@ -87,6 +90,19 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
         const newPath = newParts.join('/');
         setAllPath(newPath);
     }
+    const handlePreview = async (link: string) => {
+        try {
+            const response = await fetch(`/api/file?key=${link}`);
+            if (!response.ok) throw new Error('Something went wrong while fetching the preview link');
+
+            const { url } = await response.json();
+
+            toast.info('Opening preview');
+            window.open(url, '_blank');
+        } catch {
+            toast.error('Failed to load preview');
+        }
+    };
 
     return (
         <div className="flex flex-col space-y-4 w-3/4">
@@ -157,12 +173,19 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                                 <TableRow
                                     key={row.id}
                                     data-state={row.getIsSelected() && 'selected'}
-                                    {...((row.original as File).type === 'DIR' && {
-                                        onClick: () => {
-                                            setAllPath((row.original as File).link);
-                                        }
-                                    })}
-                                    className={(row.original as File).type === 'DIR' ? 'hover:underline cursor-pointer' : ''}
+                                    {
+                                        ...((row.original as File).type === 'DIR'
+                                          ? {
+                                              onClick: () => {
+                                                setAllPath((row.original as File).link);
+                                              },
+                                            }
+                                          : {
+                                              onClick: () => handlePreview((row.original as File).link),
+                                            })
+                                      }
+                                    
+                                    className={(row.original as File).type === 'DIR' ? 'font-bold hover:underline cursor-pointer' : 'hover:underline cursor-pointer'}
                                 >
                                     {row.getVisibleCells().map(cell => (
                                         <TableCell key={cell.id}>{flexRender(cell.column.columnDef.cell, cell.getContext())}</TableCell>
@@ -180,10 +203,10 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                 </Table>
             </div>
             <div className="flex items-center justify-center space-x-2 py-4">
-                <Button variant="outline" size="lg" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
+                <Button className="cursor-pointer" variant="outline" size="lg" onClick={() => table.previousPage()} disabled={!table.getCanPreviousPage()}>
                     Previous
                 </Button>
-                <Button variant="outline" size="lg" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
+                <Button className="cursor-pointer" variant="outline" size="lg" onClick={() => table.nextPage()} disabled={!table.getCanNextPage()}>
                     Next
                 </Button>
             </div>
