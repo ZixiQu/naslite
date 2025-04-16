@@ -11,6 +11,7 @@ import { SuccessDialog } from '@/components/ui/success-dialog';
 import { File } from '@/lib/file-types';
 import { usePath } from '@/lib/path-context';
 import { GetPaths } from './page';
+import { ArrowLeft } from 'lucide-react';
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -90,6 +91,10 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     return (
         <div className="flex flex-col space-y-4 w-3/4">
             <div className="flex items-center p-4 justify-between mb-5">
+                <Button variant="ghost" size="lg" className="ml-2 max-w-xl h-12 text-md px-5 cursor-pointer" onClick={() => goBack(Path)} disabled={Path === ''}>
+                    <ArrowLeft className="w-12 h-12" />
+                </Button>
+
                 <Input placeholder="Filter names..." value={(table.getColumn('name')?.getFilterValue() as string) ?? ''} onChange={event => table.getColumn('name')?.setFilterValue(event.target.value)} className="max-w-xl h-12 text-lg px-5" />
                 <Dialog open={open} onOpenChange={setOpen}>
                     <DialogTrigger asChild>
@@ -133,10 +138,6 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                         </DialogFooter>
                     </DialogContent>
                 </Dialog>
-
-                <Button variant="ghost" size="lg" className="ml-2 max-w-xl h-12 text-md px-5 cursor-pointer" onClick={() => goBack(Path)} disabled={Path === ''}>
-                    Back
-                </Button>
             </div>
             <SuccessDialog open={folderCreated} message="Folder created successfully." onClose={() => setfolderCreated(false)} />
             <div className="rounded-md">
