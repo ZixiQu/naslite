@@ -48,6 +48,8 @@ export function AppSidebar() {
         ? [
               {
                 title: session.user.name,
+                url: '/profile'
+                // icon: future work, include user.image as icon
               },
               {
                   title: 'Sign Out',
