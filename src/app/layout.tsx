@@ -153,7 +153,7 @@ export default function RootLayout({
 function Layout({ children }: { children: React.ReactNode }) {
     const { data: session } = authClient.useSession();
     const pathname = usePathname();
-    const isHome = pathname === '/';
+    const isHome = pathname === '/' || pathname === '/signin' || pathname === '/signup' || pathname === '/404' || pathname === '/signout' || pathname === '/update_password' || pathname === '/profile';
     const { Path, FileTree, setAllPath } = usePath();
 
     return (
