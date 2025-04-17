@@ -32,26 +32,32 @@ export async function POST(req: NextRequest) {
 
   try {
     const formData = await req.formData();
-    const file = formData.get("file") as File | null;
+    const files = formData.getAll('file') as File[];
 
-    if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 });
+    if (!files || files.length === 0) {
+        return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
     }
 
-    const fileBuffer = Buffer.from(await file.arrayBuffer());
     const currentPath = await getCurrentPath();
-    const key = trimAndNormalizePath(`${user_id}/${currentPath}/${file.name}`);
+    const urls: string[] = [];
 
-    const command = new PutObjectCommand({
-      Bucket: process.env.SPACES_BUCKET, // next-app-files
-      Key: key,
-      Body: fileBuffer,
-      ContentType: file.type || "application/octet-stream",
-    });
+    for (const file of files) {
+        const fileBuffer = Buffer.from(await file.arrayBuffer());
+        const key = trimAndNormalizePath(`${user_id}/${currentPath}/${file.name}`);
 
-    await s3Client.send(command);
-    const url = `https://${process.env.SPACES_BUCKET}.${process.env.SPACES_REGION}.digitaloceanspaces.com/${key}`;
-    return NextResponse.json({ url }, { status: 200 });
+        const command = new PutObjectCommand({
+            Bucket: process.env.SPACES_BUCKET, // next-app-files
+            Key: key,
+            Body: fileBuffer,
+            ContentType: file.type || 'application/octet-stream'
+        });
+
+        await s3Client.send(command);
+        const url = `https://${process.env.SPACES_BUCKET}.${process.env.SPACES_REGION}.digitaloceanspaces.com/${key}`;
+        urls.push(url);
+    }
+
+    return NextResponse.json({ urls }, { status: 200 });
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json(

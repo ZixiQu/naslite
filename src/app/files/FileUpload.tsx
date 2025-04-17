@@ -16,12 +16,12 @@ export function FileUpload() {
     const { setFileTree } = usePath();
 
     const onDrop = useCallback((acceptedFiles: File[]) => {
-        setFiles(acceptedFiles);
+        setFiles(prev => [...prev, ...acceptedFiles]);
     }, []);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
-        multiple: false
+        multiple: true
     });
 
     const handleUpload = () => {
@@ -34,7 +34,9 @@ export function FileUpload() {
         startTransition(async () => {
             try {
                 const formData = new FormData();
-                formData.append('file', files[0]);
+                files.forEach(file => {
+                    formData.append('file', file);
+                });
 
                 const result = await fetch('/api/upload', {
                     method: 'POST',
@@ -44,11 +46,13 @@ export function FileUpload() {
                 if (!result.ok) {
                     throw new Error('Upload failed');
                 }
+
                 const refetchFileTree = await GetPaths();
                 if (refetchFileTree.error) {
                     setError(refetchFileTree.error);
                     return;
                 }
+
                 setFileTree(refetchFileTree.paths);
                 setFileUpload(true);
                 setFiles([]);
@@ -65,7 +69,16 @@ export function FileUpload() {
                     <input {...getInputProps()} />
                     <UploadCloud className="w-10 h-10 mb-4 text-muted-foreground" />
                     <p className="text-sm text-muted-foreground">Drag & drop your file here or click to select to upload to the current path.</p>
-                    {files.length > 0 && <p className="text-sm mt-2 text-foreground">Selected: {files[0].name}</p>}
+                    {files.length > 0 && (
+                        <div className="text-sm mt-2 text-foreground space-y-1">
+                            <p className="font-medium">Selected Files:</p>
+                            {files.map((file, index) => (
+                                <p key={index} className="ml-2">
+                                    • {file.name}
+                                </p>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
