@@ -10,7 +10,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { SuccessDialog } from '@/components/ui/success-dialog';
 import { File } from '@/lib/file-types';
 import { usePath } from '@/lib/path-context';
-import { GetPaths } from './page';
+import { GetPaths } from '@/lib/get-paths';
 import { ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
