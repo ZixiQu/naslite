@@ -17,7 +17,7 @@ This project is a NAS server that provide a browser based frontend, that easily 
 ### Usage
 
 1. Get the source code (download the .zip file, or `git clone` from the GitHub repo)
-2. [Setting up DB for better-auth](#1.-Setting-up-DB)
+2. [Setting up DB for better-auth](#1-setting-up-db)
 3. `npx prisma migrate dev`
 4. `npm run build; npm run start;`  
 5. Good to go! Checkout it out [in the browser](http://localhost:3000)
