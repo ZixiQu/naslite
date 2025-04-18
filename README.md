@@ -10,14 +10,14 @@ Kangzhi Gao ()
 
 ### Introduction
 
-This project is a NAS server that provide a browser based frontend, that easily setup for a personal storage securely. Our frontend UI are so elegant, that you can manage you files at the tip of your finger! For this project, web-framework is [Next.js](https://nextjs.org/), the user content are stored in [DigitialOcean](cloud.digitalocean.com), the UI are [tailwind-CSS](https://tailwindcss.com/)-based and incorporated with [shadcn/ui](https://ui.shadcn.com/), and user authentication is powered by [better-auth](https://www.better-auth.com/).
+This project is a NAS server that provide a browser based frontend, that easily setup for a personal storage securely. Our frontend UI are so elegant, that you can manage you files at the tip of your finger! For this project, web-framework is [Next.js](https://nextjs.org/), the user content are stored in [DigitialOcean](https://cloud.digitalocean.com), the UI are [tailwind-CSS](https://tailwindcss.com/)-based and incorporated with [shadcn/ui](https://ui.shadcn.com/), and user authentication is powered by [better-auth](https://www.better-auth.com/).
 
 
 
 ### Usage
 
 1. Get the source code (download the .zip file, or `git clone` from the GitHub repo)
-2. [Setting up DB for better-auth](#1.  Setting up DB)
+2. [Setting up DB for better-auth](#1.-Setting-up-DB)
 3. `npx prisma migrate dev`
 4. `npm run build; npm run start;`  
 5. Good to go! Checkout it out [in the browser](http://localhost:3000)
@@ -110,7 +110,7 @@ Password update is more critical, therefore we separate password page to another
 
 ### Technical Details
 
-#### 1.  Setting up DB
+#### 1. Setting up DB
 A new DB user and new table shall be created for the project. First log into psql with root user:
 
 ```bash
