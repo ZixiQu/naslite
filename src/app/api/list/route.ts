@@ -129,8 +129,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<FileTree | { e
         }
         const tree = filesToTree(files);
         return NextResponse.json(tree);
-    } catch (error) {
-        console.log(error)
+    } catch {
         return NextResponse.json({ error: 'Failed to get file list' }, { status: 500 });
     }
 }

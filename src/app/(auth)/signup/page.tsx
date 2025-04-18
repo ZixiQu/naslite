@@ -11,7 +11,7 @@ export default function SignUpPage() {
 
   async function handleSignUp(formData: FormData) {
     const result = await signUpWithEmail(formData);
-    console.log("Sign-up response:", result);
+    // console.log("Sign-up response:", result);
     if (result.success) {
       setMessage("Sign-up successful!");
       setMessageType("success");

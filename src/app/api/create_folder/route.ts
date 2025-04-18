@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
   try {
     const currentPath = await getCurrentPath();
     const fullPath = `${user_id}/${currentPath ? (currentPath + '/') : ""}${key}/`
-    console.log(fullPath);
+    // console.log(fullPath);
     const command = new PutObjectCommand({
       Bucket: process.env.SPACES_BUCKET!,
       Key: fullPath,

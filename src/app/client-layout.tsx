@@ -16,8 +16,8 @@ import { Toaster } from '@/components/ui/sonner';
 
 function BreadcrumbSubPart(rest_paths: string[], fileTree: FileTree, setAllPath: (path: string) => void): JSX.Element[] {
     const items: JSX.Element[] = [];
-    console.log('Rest paths:', rest_paths);
-    console.log('File tree:', fileTree);
+    // console.log('Rest paths:', rest_paths);
+    // console.log('File tree:', fileTree);
     let currentFile: FileTree = fileTree;
 
     rest_paths.forEach((item, index) => {
@@ -26,8 +26,8 @@ function BreadcrumbSubPart(rest_paths: string[], fileTree: FileTree, setAllPath:
         const siblings = (Object.values(currentFile) as File[]).filter(file => file.name !== item && file.type === 'DIR');
         const dropdown = siblings.length > 0;
 
-        console.log('Current file:', item_link);
-        console.log('Item:', item);
+        // console.log('Current file:', item_link);
+        // console.log('Item:', item);
 
         items.push(
             <span key={index} className="flex items-center">

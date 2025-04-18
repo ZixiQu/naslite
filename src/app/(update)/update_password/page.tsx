@@ -50,7 +50,7 @@ export default function Profile() {
                     newPassword: newPassword,
                     revokeOtherSessions: true
                 });
-                console.log(response); // if success:{ data: {user data}, error: null }; if failed: { data: null, error: {"code": "INVALID_PASSWORD","message": "Invalid password", "status": 400,"statusText": "BAD_REQUEST"}}
+                // console.log(response); // if success:{ data: {user data}, error: null }; if failed: { data: null, error: {"code": "INVALID_PASSWORD","message": "Invalid password", "status": 400,"statusText": "BAD_REQUEST"}}
                 if (!response.error) {
                     setLogging(false);
                     setMessageType('success');
