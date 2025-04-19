@@ -64,7 +64,11 @@ function BreadcrumbSubPart(rest_paths: string[], fileTree: FileTree, setAllPath:
             </span>
         );
 
-        currentFile = currentFile[item].children || {};
+        if (!currentFile?.[item] || currentFile[item].type !== 'DIR') {
+            return;
+        } else {
+            currentFile = currentFile[item].children || {};
+        }
     });
 
     return items;
@@ -149,7 +153,7 @@ function Layout({ children }: { children: React.ReactNode }) {
             <main className="flex-1 min-h-screen overflow-hidden relative">
                 <div className="flex items-center px-4 py-2">
                     <SidebarTrigger />
-                    <Breadcrumb className={`ml-4 ${session && !isHome ? 'flex' : 'hidden'}`}>{BreadcrumbListGenerator(Path, setAllPath, FileTree)}</Breadcrumb>
+                    {session && <Breadcrumb className={`ml-4 ${!isHome ? 'flex' : 'hidden'}`}>{BreadcrumbListGenerator(Path, setAllPath, FileTree)}</Breadcrumb>}
                 </div>
 
                 <div className="flex items-top justify-center min-h-full w-full">{children}</div>

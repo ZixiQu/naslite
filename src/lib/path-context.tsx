@@ -5,6 +5,7 @@ import { getCurrentPath } from '@/lib/path-client';
 import { FileTree } from '@/lib/file-types';
 import { setCurrentPath } from '@/lib/path-client';
 import { usePathname } from 'next/navigation';
+import { authClient } from './auth-client';
 
 type PathContextType = {
     Path: string;
@@ -20,10 +21,13 @@ export function PathProvider({ children }: { children: ReactNode }) {
     const [FileTree, setFileTree] = useState<FileTree>({});
     const [loading, setLoading] = useState(true);
     const pathname = usePathname();
+    const { data: session, isPending } = authClient.useSession();
     const isHome = pathname === '/' || pathname === '/signin' || pathname === '/signup' || pathname === '/404' || pathname === '/signout';
 
     useEffect(() => {
-        if (isHome) {
+        if (isPending) return;
+
+        if (!session) {
             setLoading(false);
             return;
         }
@@ -52,7 +56,7 @@ export function PathProvider({ children }: { children: ReactNode }) {
         };
 
         loadInitial();
-    }, [isHome]);
+    }, [session, isHome, isPending, pathname]);
 
     function setAllPath(path: string) {
         setPath(path);
