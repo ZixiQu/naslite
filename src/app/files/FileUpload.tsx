@@ -5,7 +5,7 @@ import { useDropzone } from 'react-dropzone';
 import { UploadCloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { SuccessDialog } from '@/components/ui/success-dialog';
-import { GetPaths } from './page';
+import { GetPaths } from '@/lib/get-paths';
 import { usePath } from '@/lib/path-context';
 
 export function FileUpload() {

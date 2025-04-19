@@ -33,7 +33,7 @@ export default function SignInPage() {
       // callbackURL,
     });
 
-    console.log("Sign-in response:", { data, error });
+    // console.log("Sign-in response:", { data, error });
 
     if (error) {
       setLogging(false);

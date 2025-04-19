@@ -2,8 +2,8 @@ import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { supportedFileTypes, type File, type FileTree} from "@/lib/file-types"
-import { object, string } from 'better-auth';
-import { constants } from 'node:buffer';
+// import { object, string } from 'better-auth';
+// import { constants } from 'node:buffer';
 
 const s3Client = new S3Client({
     endpoint: process.env.SPACES_ENDPOINT, // https://nyc3.digitaloceanspaces.com
@@ -129,8 +129,7 @@ export async function GET(req: NextRequest): Promise<NextResponse<FileTree | { e
         }
         const tree = filesToTree(files);
         return NextResponse.json(tree);
-    } catch (error) {
-        console.log(error)
+    } catch {
         return NextResponse.json({ error: 'Failed to get file list' }, { status: 500 });
     }
 }

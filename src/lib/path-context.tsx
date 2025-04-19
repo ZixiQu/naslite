@@ -52,7 +52,7 @@ export function PathProvider({ children }: { children: ReactNode }) {
         };
 
         loadInitial();
-    }, []);
+    }, [isHome]);
 
     function setAllPath(path: string) {
         setPath(path);

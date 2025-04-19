@@ -24,9 +24,9 @@ export default function UploadPage() {
         body: formData,
       });
       if (res.status === 401) {
-        console.log("error is set?");
-        setError("Unauthorized");
-        return; 
+          // console.log("error is set?");
+          setError('Unauthorized');
+          return;
       }
       else if (!res.ok) {
         throw new Error("Upload failed");

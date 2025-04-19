@@ -12,7 +12,7 @@ export default function Page() {
     error, //error object
   } = authClient.useSession() 
 
-  console.log(session);
+  // console.log(session);
   if (isPending) return <div>Loading...</div>;
   if (error) return <div>Error: {error.message}</div>;
   

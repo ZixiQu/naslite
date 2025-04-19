@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/rules-of-hooks */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { ColumnDef } from '@tanstack/react-table';
@@ -7,6 +9,11 @@ import { FileImage, FileText, FileVideo, FileAudio, FileArchive, FileType2, File
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { useState } from 'react';
+import { GetPaths } from '@/lib/get-paths';
+import { usePath } from '@/lib/path-context';
+
 const fileTypeToIcon = {
     PNG: FileImage,
     TXT: FileText,
@@ -18,11 +25,6 @@ const fileTypeToIcon = {
     XLSX: FileSpreadsheet,
     DIR: Folder
 } as const;
-
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { useState } from 'react';
-import { GetPaths } from './page';
-import { usePath } from '@/lib/path-context';
 
 export const columns: ColumnDef<File>[] = [
     {
@@ -177,7 +179,6 @@ export const columns: ColumnDef<File>[] = [
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button variant="ghost" className="h-8 w-8 p-0 cursor-pointer">
-                                {/* <span className="sr-only">Open menu</span> */}
                                 <MoreHorizontal className="h-4 w-4" />
                             </Button>
                         </DropdownMenuTrigger>
@@ -185,7 +186,14 @@ export const columns: ColumnDef<File>[] = [
                             <DropdownMenuLabel className="text-muted-foreground">Quick Actions</DropdownMenuLabel>
                             <DropdownMenuSeparator />
 
-                            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(file.name)} className="cursor-pointer">
+                            <DropdownMenuItem
+                                onClick={e => {
+                                    e.stopPropagation();
+                                    navigator.clipboard.writeText(file.name);
+                                    toast.success(`Copied "${file.name}" to clipboard`);
+                                }}
+                                className="cursor-pointer"
+                            >
                                 <Clipboard className="mr-2 h-4 w-4" />
                                 Copy Name
                             </DropdownMenuItem>

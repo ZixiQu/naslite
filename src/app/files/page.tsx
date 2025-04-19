@@ -8,27 +8,7 @@ import { FileUpload } from './FileUpload';
 import NotLoggedInPage from '../401/page';
 import { Suspense, useEffect, useState } from 'react';
 import { usePath } from '@/lib/path-context';
-
-// GET /api/list
-export async function GetPaths(): Promise<{ paths: FileTree; error?: string }> {
-    try {
-        const result = await fetch('/api/list', {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!result.ok) {
-            throw new Error('Failed to fetch paths');
-        }
-
-        const data = await result.json();
-        return { paths: data as FileTree };
-    } catch {
-        return { paths: {}, error: 'Failed to fetch paths' };
-    }
-}
+import { GetPaths } from '@/lib/get-paths';
 
 function DataTableSection() {
     const [files, setFiles] = useState<File[]>([]);
@@ -47,6 +27,7 @@ function DataTableSection() {
         }
 
         fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     useEffect(() => {
