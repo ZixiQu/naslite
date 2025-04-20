@@ -1,5 +1,11 @@
 ## ECE1724 - React - Final Project
 
+## Video Demo
+
+[link](https://www.youtube.com/watch?v=pH8vuNILAG4)
+
+
+
 ### Team
 
 Zixi Qu (1006143861)
