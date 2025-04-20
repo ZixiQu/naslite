@@ -23,3 +23,7 @@ export async function getCurrentPath() {
     const match = document.cookie.match(new RegExp(`(^| )${COOKIE_NAME}=([^;]+)`));
     return match ? decodeURIComponent(match[2]) : '';
 }
+
+export async function deleteCurrentPath() {
+    document.cookie = `${COOKIE_NAME}=; path=/; max-age=0`;
+}
