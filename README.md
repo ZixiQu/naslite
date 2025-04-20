@@ -2,9 +2,12 @@
 
 ### Team
 
-Zixi Qu (1006143861)
+Zixi Qu (1006143861, zixi.qu@mail.utoronto.ca)
 
-Kangzhi Gao (1006307827)
+Kangzhi Gao (1006307827, kangzhi.gao@mail.utoronto.ca)
+
+### Video Demo
+[Watch on YouTube](https://www.youtube.com/watch?v=pH8vuNILAG4&ab_channel=ZixiQu)
 
 
 
@@ -13,18 +16,127 @@ Kangzhi Gao (1006307827)
 This project is a NAS server that provide a browser based frontend, that easily setup for a personal storage securely. Our frontend UI are so elegant, that you can manage you files at the tip of your finger! For this project, web-framework is [Next.js](https://nextjs.org/), the user content are stored in [DigitialOcean](https://cloud.digitalocean.com), the UI are [tailwind-CSS](https://tailwindcss.com/)-based and incorporated with [shadcn/ui](https://ui.shadcn.com/), and user authentication is powered by [better-auth](https://www.better-auth.com/).
 
 
+### Motivation
 
-### Usage
+It is trivial to mention the importance of data storage. To carry files or to make data portable from device to device, people choose a variety of solutions, including carrying an USB, pay for cloud storage including google drive or iCloud. However, both USB and cloud storage have their drawbacks. USB drive requires carrying the physical drive, you may lose it, or not having it in hand when you need it the most. Cloud storage can be more portable, and you don't need to worry about losing the data, but data are not private. Although the companies claim their protection to user data, you don't have control if they want to peek. Cloud storage is also going to charge more if your usage starts to goes up, so cloud storage, especially free versions, are only good for small-amount, non-important data storage.
 
-1. Get the source code (download the .zip file, or `git clone` from the GitHub repo)
-2. [Setting up DB for better-auth](#1-setting-up-db)
-3. `npx prisma migrate dev`
-4. `npm run build; npm run start;`  
-5. Good to go! Checkout it out [in the browser](http://localhost:3000)
+NAS has been a modern, highly scalable, and highly configurable solution to geeks, that ensures the data is private, accessible, scalable. NAS usually refers to a tiny computer, that different from the day-to-day laptop that we use, has only a few hard drive opening slots for upgrading storage size, that has a dedicate design for file storage server. NAS is usually kept at home, so the data is secure.
+
+Although the upfront cost of NAS, including the hardware cost and configuration cost, is high, once setup, you can store and access your precious data all over the world, without worrying about data integrity, security, and cost. The idea of NAS is relatively new compare to USB and cloud storage, still there's only a small portion of people are using NAS to protect their data due to the high upfront cost and setup hardness, but from the increasing amount of online resources including setting up videos, blogs, and forums, the community is growing rapidly, and eventually when the cost problem is gradually solved and more accessible to non-professionals, people will tend to choose this more secure and personal data storage solution.
+
+Entrepreneur-level NAS companies, including [Synology](https://www.synology.com), [UGREEN](https://nas.ugreen.com/), or [TrueNAS](https://www.truenas.com/), provide a rather heavy solution, including a lot of features that might be overwhelmed to small players who only want a basic upload and view functionalities. Our team decide to design a free, easy-to-setup, super-lightweight application, to manage file upload and preview in a web-browser, that only requires a computer and a storage place. For project educational purpose, we will choose one of the cloud storage provider, DigitalOcean Spaces, AWS S3, or Azure, whichever is cheaper. My ideal storage method, which we will adopt after we have finish the course, would be local computer storage, so that my deprecated ex-MacBook pro can serve more that it can now, which is nothing.
 
 
 
-### Frontend Endpoints:
+### Objective and Key Features
+
+This project aim to create a light-weight NAS server, that provide a full stack application to allow user to easily setup local computer storage or cloud storage as a personal NAS. Each user has a space of storage, that allows uploading all kinds of file type, and support a few common file type preview, including jpg/png image, txt file, mp4/mov videos.
+
+
+
+### Technical Stack
+
+This project adopts a **Next.js Full-Stack** approach to deliver a modern web application. Below are the key technologies used in building NASlite:
+
+- **Frontend & Full-Stack Framework**: [Next.js](https://nextjs.org/)
+- **UI & Styling**: [Tailwind CSS](https://tailwindcss.com/), [shadcn/ui](https://ui.shadcn.com/)
+- **Authentication**: [Better-auth](https://www.better-auth.com/)
+- **Storage**: [DigitalOcean Spaces](https://cloud.digitalocean.com)
+- **Database**: **PostgreSQL**
+- **ORM**: [Prisma](https://www.prisma.io/)
+
+
+
+### Development Guide
+
+1. Clone the repository or download the source code (`.zip` or via `git clone`).
+
+2. A new database user and database need to be created for the project.
+
+   First, log into `psql` using a PostgreSQL root or admin user:
+
+   ```bash
+   psql -U <root user>
+   ```
+
+   Then, run the following SQL commands to create a new user and grant the necessary permissions:
+
+   ```sql
+   CREATE ROLE naslite WITH LOGIN PASSWORD 'passwd';
+   ALTER ROLE naslite CREATEDB;
+   ```
+
+   This allows Prisma to connect using the following environment variable:
+
+   ```bash
+   DATABASE_URL="postgresql://naslite:passwd@localhost:5432/naslite?schema=public"
+   ```
+
+3. Create a `.env` file in the root directory with the following content:
+
+   ```env
+   DATABASE_URL="postgresql://naslite:passwd@localhost:5432/naslite?schema=public"
+   BETTER_AUTH_SECRET="a_very_long_random_string"
+   BETTER_AUTH_URL="http://localhost:3000"
+
+   SPACES_KEY=your-access-key
+   SPACES_SECRET=your-secret-key
+   SPACES_REGION=nyc3
+   SPACES_BUCKET=next-app-files
+   SPACES_ENDPOINT=https://nyc3.digitaloceanspaces.com
+   ```
+
+4. Run database migrations:
+
+   ```bash
+   npx prisma migrate dev
+   ```
+
+5. Build and start the application:
+
+   ```bash
+   npm run build
+   npm run start
+   ```
+
+6. You're all set! Open [http://localhost:3000](http://localhost:3000) in your browser to try it out.
+
+> **Note:** All required credentials have been shared with **Professor Ying** via email.
+
+
+
+### Features
+
+- **User Authentication**
+  - Sign up and sign in via a user-friendly interface.
+  - Secure session management with the ability to sign out safely.
+
+- **File Management**
+  - Full-featured file explorer accessible from `/files`.
+  - Upload, download, preview, search, and organize files.
+  - Drag and drop multiple files for batch upload.
+  - Inline media preview: images (`.png`) and videos play in pop-up viewers.
+  - Persistent path memory: resume from where you left off after closing the tab.
+
+- **Navigation**
+  - Intuitive sidebar for quick access to all major routes (`/`, `/signin`, `/signup`, `/signout`, `/profile`).
+  - Current path display with easy back-navigation in the file view.
+
+- **User Profile**
+  - Accessible via sidebar username link.
+  - Edit user display name (email is fixed for identity consistency).
+
+- **Password Management**
+  - Dedicated `/update_password` page for secure password updates.
+  - Requires current password and double confirmation for safety.
+
+- **Responsive UI**
+  - Elegant and intuitive UI built with Tailwind CSS and shadcn/ui.
+  - Seamless user experience across devices.
+
+
+
+### User Guide:
 
 #### 1. `/`
 
@@ -66,7 +178,74 @@ Password update is more critical, therefore we separate password page to another
 
 
 
+### Individual Contributions
 
+#### [Zixi Qu](https://github.com/ZixiQu)
+
+- **User Authentication**:  
+  Implemented secure login and signup using [better-auth](https://www.better-auth.com/) with session management and access control.
+
+- **File Storage**:  
+  Set up file storage using DigitalOcean Spaces. Ensured each user's files are stored correctly and securely.
+
+- **Backend API**:  
+  Developed RESTful API endpoints for handling file operations and user sessions.
+
+- **Database Design**:  
+  Designed and implemented the PostgreSQL database using Prisma to store user and file information.
+
+- **Frontend Work**:
+  Contributed to the user interface using React and Tailwind CSS.
+
+#### [Kangzhi Gao](https://github.com/Connor315)
+
+- **File System UI**:  
+  Built the web-based file explorer using React and shadcn/ui. Implemented features like folder navigation, selection, and drag-and-drop.
+
+- **File Sorting and Preview**:  
+  Added sorting options and file previews for the files.
+
+- **Frontend-Backend Integration**:  
+  Connected the frontend to the backend API for uploading, deleting, and displaying files and folders.
+
+- **User Experience**:  
+  Designed and improved file navigation, upload behavior, and visual feedback based on user flow.
+
+#### Shared Contributions
+
+- **Frontend Design**:  
+  Both members worked on creating a clean, responsive, and consistent interface using Tailwind CSS and shadcn/ui components.
+
+- **Planning and Coordination**:  
+  Collaborated on project planning, user experience design, defining user workflows, and brainstorming key features like file preview, session persistence, and optional file search.
+
+- **Testing**:  
+  Worked together to test the entire application—ensuring core features like authentication, file operations, and navigation worked smoothly and reliably.
+
+
+
+### Limitations:
+
+We are a two-people team. There are lots of features in our mind that we didn't have the time to implement. However, we plan to keep working on NASlite to make it a fully available light weight NAS server after the course ends, so that everyone can set up a NAS server at home to save some money and privacy on their precious memories!
+
+#### 1. Moving Files  
+Right now, users can’t move files from one folder to another. We would like to build extra backend and frontend features to support that.
+
+#### 2. Storage on DigitalOcean  
+We use DigitalOcean for file storage because it’s easy to set up, not too expensive, and includes free CDN. But our original idea was to make storage completely free by saving files on the user’s local disk. To do that, we’d need to build a local file access API.
+
+#### 3. Uploading Folders  
+You can upload multiple files, but not entire folders. It would be more user-friendly if you could drag and drop folders to upload. This needs more complex code on the frontend to handle folders and their contents.
+
+#### 4. User Profile Features  
+To keep things simple, we only support email and password login. We don’t yet support features like profile pictures or email verification.
+
+#### 5. Third-Party Login  
+Logging in with Google, GitHub, or other platforms isn’t available yet, but we’d like to add this in the future to make signing in easier.
+
+---
+
+### Additional Technical Insights
 
 ### Backend API:
 
@@ -146,7 +325,7 @@ Some useful psql command to check DB metadata:
 
 1. We create user model under `schema.prisma` and migrate
    
-    I don't know if this step is necessary. We might be able to skip
+    <!-- I don't know if this step is necessary. We might be able to skip -->
     ```sql
     model User {
         id        String   @id @default(uuid())
@@ -217,37 +396,3 @@ There's a function you can `import { trimAndNormalizePath } from "@/lib/path"` t
 #### 5. Set User's Current Path in Cookie
 
 User's viewing path is stored in cookie. We set the path when user is checking out a path. When user is creating new item (folder/file), it is created under the path. The benefit of storing in cookie is cookie is persist after closing the browser. 
-
-
-
-### Contributions:
-
-[Zixi Qu](https://github.com/ZixiQu): Mainly backend. User authentication, file retrieval authorization, cloud storage DevOps and backend API. Also implement a bit frontend for practice.
-
-[Kangzhi Gao](https://github.com/Connor315): Mainly frontend. Incorporate with backend data and visualize it nicely in the React and Tailwind-based UI.
-
-
-
-### Limitations:
-
-We are a two-people team. There are lots of features in our mind that we didn't have the time to implement. However, we plan to keep working on NASlite to make it a fully available light weight NAS server after the course ends, so that everyone can set up a NAS server at home to save some money and privacy on their precious memories!
-
-#### 1. Move files around
-
-The files cannot be moved to another folder. 
-
-#### 2. User's file are stored in DigitalOcean
-
-Although DigitalOcean has a fair price on the service, and can easily scale-up and provide free CDN, our initial thought is to make the cloud storage completely free, by storing the file on local disks. An local file retrieval API need to implemented for such functionality. 
-
-#### 3. Upload entire folder
-
-We can upload multiple files at once, but it would be even better if we can drag and drop entire folder or folders and upload them all at once! A more complicated  frontend logic need to be implemented for such functionality.
-
-#### 4. Advanced user identity
-
-User image, verifying email. We kept our project simple for the scale of the course. Currently we only support email and password login.
-
-#### 5. Third-party login
-
-Login through Google, GitHub, etc.
