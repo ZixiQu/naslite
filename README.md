@@ -28,7 +28,7 @@ Entrepreneur-level NAS companies, including [Synology](https://www.synology.com)
 
 
 
-### Objective and Key Features
+### Objective
 
 This project aim to create a light-weight NAS server, that provide a full stack application to allow user to easily setup local computer storage or cloud storage as a personal NAS. Each user has a space of storage, that allows uploading all kinds of file type, and support a few common file type preview, including jpg/png image, txt file, mp4/mov videos.
 
@@ -105,7 +105,7 @@ This project adopts a **Next.js Full-Stack** approach to deliver a modern web ap
 
 
 
-### Features
+### Key Features
 
 - **User Authentication**
   - Sign up and sign in via a user-friendly interface.
@@ -113,13 +113,15 @@ This project adopts a **Next.js Full-Stack** approach to deliver a modern web ap
 
 - **File Management**
   - Full-featured file explorer accessible from `/files`.
-  - Upload, download, preview, search, and organize files.
+  - Upload, download, preview and search files.
   - Drag and drop multiple files for batch upload.
-  - Inline media preview: images (`.png`) and videos play in pop-up viewers.
+  - Media preview: images and videos play in pop-up tabs.
+  - Delete files directly from the interface.
+  - Copy file name with a single click for easy referencing or sharing.
   - Persistent path memory: resume from where you left off after closing the tab.
 
 - **Navigation**
-  - Intuitive sidebar for quick access to all major routes (`/`, `/signin`, `/signup`, `/signout`, `/profile`).
+  - Intuitive sidebar for quick access to all major routes (`/`, `/signin`, `/signup`, `/signout`, `/profile`, `/files`).
   - Current path display with easy back-navigation in the file view.
 
 - **User Profile**
@@ -132,7 +134,6 @@ This project adopts a **Next.js Full-Stack** approach to deliver a modern web ap
 
 - **Responsive UI**
   - Elegant and intuitive UI built with Tailwind CSS and shadcn/ui.
-  - Seamless user experience across devices.
 
 
 
