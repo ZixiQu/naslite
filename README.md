@@ -74,11 +74,13 @@ This project adopts a **Next.js Full-Stack** approach to deliver a modern web ap
 
 3. Create a `.env` file in the root directory with the following content:
 
+   > **Note:** All required credentials (usable `.env` file) have been shared with **Professor Ying** via email.
+
    ```env
    DATABASE_URL="postgresql://naslite:passwd@localhost:5432/naslite?schema=public"
    BETTER_AUTH_SECRET="a_very_long_random_string"
    BETTER_AUTH_URL="http://localhost:3000"
-
+   
    SPACES_KEY=your-access-key
    SPACES_SECRET=your-secret-key
    SPACES_REGION=nyc3
@@ -100,8 +102,6 @@ This project adopts a **Next.js Full-Stack** approach to deliver a modern web ap
    ```
 
 6. You're all set! Open [http://localhost:3000](http://localhost:3000) in your browser to try it out.
-
-> **Note:** All required credentials have been shared with **Professor Ying** via email.
 
 
 
@@ -246,6 +246,8 @@ Logging in with Google, GitHub, or other platforms isn’t available yet, but we
 
 ---
 
+
+
 ### Additional Technical Insights
 
 ### Backend API:
@@ -326,7 +328,6 @@ Some useful psql command to check DB metadata:
 
 1. We create user model under `schema.prisma` and migrate
    
-    <!-- I don't know if this step is necessary. We might be able to skip -->
     ```sql
     model User {
         id        String   @id @default(uuid())
