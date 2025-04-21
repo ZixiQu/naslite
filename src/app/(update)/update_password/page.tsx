@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-export default function Profile() {
+export default function Password() {
     const {
         data: session,
         isPending,
@@ -79,7 +79,7 @@ export default function Profile() {
         <div className="w-full flex justify-center">
             {session?.user?.name ? (
                 <div className="space-y-6 flex flex-col items-center max-w-lg w-full p-4">
-                    <h1 className="text-2xl font-bold">Profile</h1>
+                    <h1 className="text-2xl font-bold">Update Password</h1>
                     <form className="space-y-4 w-full max-w-lg" onSubmit={handleUpdatePassword}>
                         <label className="block text-sm font-medium">Old Password:</label>
                         <input className="border p-2 w-full" type="password" name="currentPassword" required />
