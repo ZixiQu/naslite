@@ -37,7 +37,7 @@ function BreadcrumbSubPart(rest_paths: string[], fileTree: FileTree, setAllPath:
                             {item}
                         </BreadcrumbLink>
 
-                        {index < rest_paths.length - 1 && dropdown && (
+                        { dropdown && (
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <button className="p-0 m-0">
