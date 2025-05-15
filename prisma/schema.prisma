@@ -55,9 +55,14 @@ model Account {
   refreshTokenExpiresAt DateTime?
   scope                 String?
   password              String?
-  createdAt             DateTime
+  createdAt             DateTime  @default(now())
   updatedAt             DateTime
 
+  type              String // "oauth" | "credentials"
+  provider          String // "google", "credentials"
+  providerAccountId String // Google user ID or email
+
+  @@unique([provider, providerAccountId])
   @@map("account")
 }
 
