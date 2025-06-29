@@ -1,7 +1,8 @@
 import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { auth } from "@/lib/auth";
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 
 const s3Client = new S3Client({
@@ -15,15 +16,12 @@ const s3Client = new S3Client({
 
 
 export async function GET(req: NextRequest) {
-  
+  const session = await getServerSession(authOptions);
 
-  const session = await auth.api.getSession({ headers: req.headers });
   if (!session) {
-    return NextResponse.json(
-      { error: "Unauthorized" },
-      { status: 401 }
-    );
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
+  
   const user_id = session.user.id;
   const { searchParams } = new URL(req.url);
   const key = searchParams.get("key");

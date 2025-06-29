@@ -1,12 +1,12 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { authClient } from '@/lib/auth-client';
+import { useSession } from 'next-auth/react';
 import { Cloud } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
-    const { data: session } = authClient.useSession();
+    const { data: session } = useSession();
 
     return (
         <div className="flex flex-col items-center justify-center">

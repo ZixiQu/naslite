@@ -1,6 +1,6 @@
 'use client';
 
-import { authClient } from '@/lib/auth-client';
+import { useSession } from 'next-auth/react';
 import { columns } from './columns';
 import { type File, type FileTree } from '@/lib/file-types';
 import { DataTable } from './data-table';
@@ -58,11 +58,11 @@ function DataTableSection() {
 
 export default function Page() {
     // Retrieve the session using Better Auth's server-side API
-    const {
-        data: session,
-        isPending, //loading state
-        error //error object
-    } = authClient.useSession();
+    const { data: session, status } = useSession();
+
+    const isPending = status === 'loading';
+    const isError = status === 'unauthenticated';
+    const error = isError ? new Error('Failed to load session') : null;
 
     if (isPending) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;

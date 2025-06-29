@@ -1,22 +1,19 @@
 "use client"
 
-import { authClient } from "@/lib/auth-client" // import the auth client
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
+import { useSession } from "next-auth/react";
 
 export default function Page() {
   // Retrieve the session using Better Auth's server-side API
-  const { 
-    data: session, 
-    isPending, //loading state
-    error, //error object
-  } = authClient.useSession() 
+  const {
+    data: session,
+    status,
+  } = useSession();
 
-  // console.log(session);
-  if (isPending) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (status === "loading") return <div>Loading...</div>;
+  if (status === "unauthenticated") return <div>Error: Not authenticated</div>;
   
-
   return (
     <div>
       {session?.user?.name ? (

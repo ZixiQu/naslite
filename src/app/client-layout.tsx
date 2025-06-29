@@ -4,8 +4,8 @@ import './globals.css';
 import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/app-sidebar';
 import { ChevronDownIcon, Slash } from 'lucide-react';
-import { authClient } from '@/lib/auth-client';
 import { usePathname } from 'next/navigation';
+import { SessionProvider, useSession } from 'next-auth/react';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbEllipsis, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { FileTree, type File } from '@/lib/file-types';
@@ -132,17 +132,17 @@ export default function ClientLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <>
+        <SessionProvider>
             <PathProvider>
                 <Layout>{children}</Layout>
             </PathProvider>
             <Toaster richColors position="top-right" />
-        </>
+        </SessionProvider>
     );
 }
 
 function Layout({ children }: { children: React.ReactNode }) {
-    const { data: session } = authClient.useSession();
+    const { data: session } = useSession();
     const pathname = usePathname();
     const isHome = pathname === '/' || pathname === '/signin' || pathname === '/signup' || pathname === '/404' || pathname === '/signout' || pathname === '/update_password' || pathname === '/profile';
     const { Path, FileTree, setAllPath } = usePath();
