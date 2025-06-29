@@ -2,7 +2,7 @@
 'use client';
 
 import NotLoggedInPage from '@/app/401/page';
-import { authClient } from '@/lib/auth-client';
+import { useSession } from 'next-auth/react';
 import { useState, useTransition } from 'react';
 import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
@@ -11,14 +11,17 @@ import { useRouter } from 'next/navigation';
 export default function Password() {
     const {
         data: session,
-        isPending,
-        error //error object
-    } = authClient.useSession();
+        status
+    } = useSession();
     const [message, setMessage] = useState('');
     const [messageType, setMessageType] = useState<'success' | 'error' | null>(null);
     const [logging, setLogging] = useState(false);
     const router = useRouter();
     const [_, startTransition] = useTransition();
+
+    if (status === 'unauthenticated') {
+        return <NotLoggedInPage />;
+    }
 
     async function handleUpdatePassword(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -45,13 +48,18 @@ export default function Password() {
             setMessage('');
 
             try {
-                const response = await authClient.changePassword({
+                const response = await fetch('/api/users/update-password', {
+                  method: 'PATCH',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
                     currentPassword: currentPassword,
                     newPassword: newPassword,
-                    revokeOtherSessions: true
+                  }),
                 });
+                const data = await response.json();
+                  
                 // console.log(response); // if success:{ data: {user data}, error: null }; if failed: { data: null, error: {"code": "INVALID_PASSWORD","message": "Invalid password", "status": 400,"statusText": "BAD_REQUEST"}}
-                if (!response.error) {
+                if (!data.error) {
                     setLogging(false);
                     setMessageType('success');
                     setMessage('Update password succeed');
@@ -63,7 +71,7 @@ export default function Password() {
                 } else {
                     setLogging(false);
                     setMessageType('error');
-                    setMessage(response.error.message ?? 'Failed to update password');
+                    setMessage(data.error.message ?? 'Failed to update password');
                 }
             } catch {
                 setLogging(false);
@@ -73,7 +81,7 @@ export default function Password() {
         }
     }
 
-    if (isPending) return <div>Loading...</div>;
+    if (status === 'loading') return <div>Loading...</div>;
 
     return (
         <div className="w-full flex justify-center">

@@ -1,9 +1,8 @@
 import { S3Client, ListObjectsV2Command } from "@aws-sdk/client-s3";
-import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { NextResponse } from "next/server";
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 import { supportedFileTypes, type File, type FileTree} from "@/lib/file-types"
-// import { object, string } from 'better-auth';
-// import { constants } from 'node:buffer';
 
 const s3Client = new S3Client({
     endpoint: process.env.SPACES_ENDPOINT, // https://nyc3.digitaloceanspaces.com
@@ -90,12 +89,15 @@ function filesToTree(files: File[], currentPath: string = ''): FileTree {
     return leaves;
 }
 
-export async function GET(req: NextRequest): Promise<NextResponse<FileTree | { error: string }>> {
-    const session = await auth.api.getSession({ headers: req.headers });
-    if (!session) {
-        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+export async function GET(): Promise<NextResponse<FileTree | { error: string }>> {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user?.id) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
+
     const user_id = session.user.id;
+
     try {
         const listCommand = new ListObjectsV2Command({
             Bucket: process.env.SPACES_BUCKET,

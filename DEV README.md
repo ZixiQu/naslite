@@ -2,6 +2,13 @@
 
 Sometimes I forgot what I did, and why things work. Hence I am writing something down
 
+## SSL for Local Development
+
+To enable HTTPS locally:
+
+1. Run `openssl req -x509 -newkey rsa:2048 -nodes -keyout cert/key.pem -out cert/cert.pem -days 365`
+2. Use `npm run dev:https` to start the app over HTTPS
+
 ### Setting up DB
 This step is not prisma setting up schema, but creating a new psql user for my local usage. By taking into consideration this project will be open-sourced in the future, I need to make sure sensitive information is not leaked. For example, passwords...
 

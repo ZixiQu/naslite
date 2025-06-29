@@ -1,6 +1,7 @@
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 
 const s3Client = new S3Client({
@@ -14,7 +15,8 @@ const s3Client = new S3Client({
 
 
 export async function DELETE(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: req.headers });
+  const session = await getServerSession(authOptions);
+
   if (!session) {
     return NextResponse.json(
       { error: "Unauthorized" },

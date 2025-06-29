@@ -1,7 +1,8 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { NextRequest, NextResponse } from "next/server";
 import { getCurrentPath } from "@/lib/path";
-import { auth } from "@/lib/auth";
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 const s3Client = new S3Client({
   endpoint: process.env.SPACES_ENDPOINT, // https://nyc3.digitaloceanspaces.com
@@ -13,7 +14,8 @@ const s3Client = new S3Client({
 });
 
 export async function POST(req: NextRequest) {
-  const session = await auth.api.getSession({ headers: req.headers });
+  const session = await getServerSession(authOptions);
+  
   if (!session) {
     return NextResponse.json(
       { error: "Unauthorized" },
