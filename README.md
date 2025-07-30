@@ -1,4 +1,4 @@
-## ECE1724 - React - Final Project
+## NASLite
 
 ### Team
 
@@ -6,7 +6,10 @@ Zixi Qu (1006143861, zixi.qu@mail.utoronto.ca)
 
 Kangzhi Gao (1006307827, kangzhi.gao@mail.utoronto.ca)
 
+
+
 ### Video Demo
+
 [Watch on YouTube](https://www.youtube.com/watch?v=pH8vuNILAG4&ab_channel=ZixiQu)
 
 
@@ -16,21 +19,10 @@ Kangzhi Gao (1006307827, kangzhi.gao@mail.utoronto.ca)
 This project is a NAS server that provide a browser based frontend, that easily setup for a personal storage securely. Our frontend UI are so elegant, that you can manage you files at the tip of your finger! For this project, web-framework is [Next.js](https://nextjs.org/), the user content are stored in [DigitialOcean](https://cloud.digitalocean.com), the UI are [tailwind-CSS](https://tailwindcss.com/)-based and incorporated with [shadcn/ui](https://ui.shadcn.com/), and user authentication is powered by [better-auth](https://www.better-auth.com/).
 
 
-### Motivation
-
-It is trivial to mention the importance of data storage. To carry files or to make data portable from device to device, people choose a variety of solutions, including carrying an USB, pay for cloud storage including google drive or iCloud. However, both USB and cloud storage have their drawbacks. USB drive requires carrying the physical drive, you may lose it, or not having it in hand when you need it the most. Cloud storage can be more portable, and you don't need to worry about losing the data, but data are not private. Although the companies claim their protection to user data, you don't have control if they want to peek. Cloud storage is also going to charge more if your usage starts to goes up, so cloud storage, especially free versions, are only good for small-amount, non-important data storage.
-
-NAS has been a modern, highly scalable, and highly configurable solution to geeks, that ensures the data is private, accessible, scalable. NAS usually refers to a tiny computer, that different from the day-to-day laptop that we use, has only a few hard drive opening slots for upgrading storage size, that has a dedicate design for file storage server. NAS is usually kept at home, so the data is secure.
-
-Although the upfront cost of NAS, including the hardware cost and configuration cost, is high, once setup, you can store and access your precious data all over the world, without worrying about data integrity, security, and cost. The idea of NAS is relatively new compare to USB and cloud storage, still there's only a small portion of people are using NAS to protect their data due to the high upfront cost and setup hardness, but from the increasing amount of online resources including setting up videos, blogs, and forums, the community is growing rapidly, and eventually when the cost problem is gradually solved and more accessible to non-professionals, people will tend to choose this more secure and personal data storage solution.
-
-Entrepreneur-level NAS companies, including [Synology](https://www.synology.com), [UGREEN](https://nas.ugreen.com/), or [TrueNAS](https://www.truenas.com/), provide a rather heavy solution, including a lot of features that might be overwhelmed to small players who only want a basic upload and view functionalities. Our team decide to design a free, easy-to-setup, super-lightweight application, to manage file upload and preview in a web-browser, that only requires a computer and a storage place. For project educational purpose, we will choose one of the cloud storage provider, DigitalOcean Spaces, AWS S3, or Azure, whichever is cheaper. My ideal storage method, which we will adopt after we have finish the course, would be local computer storage, so that my deprecated ex-MacBook pro can serve more that it can now, which is nothing.
-
-
 
 ### Objective
 
-This project aim to create a light-weight NAS server, that provide a full stack application to allow user to easily setup local computer storage or cloud storage as a personal NAS. Each user has a space of storage, that allows uploading all kinds of file type, and support a few common file type preview, including jpg/png image, txt file, mp4/mov videos.
+This project aim to create a light-weight NAS server, that provides a full stack application to allow user to easily setup local computer storage or cloud storage as a personal NAS. Each user has a space of storage, that allows uploading all kinds of file type, and support a few common file type preview, including jpg/png image, txt file, mp4/mov videos.
 
 
 
@@ -40,14 +32,46 @@ This project adopts a **Next.js Full-Stack** approach to deliver a modern web ap
 
 - **Frontend & Full-Stack Framework**: [Next.js](https://nextjs.org/)
 - **UI & Styling**: [Tailwind CSS](https://tailwindcss.com/), [shadcn/ui](https://ui.shadcn.com/)
-- **Authentication**: [Better-auth](https://www.better-auth.com/)
+- **Authentication**: [Better-auth](https://www.better-auth.com/) (Later migrate to NextAuth to support Third-Party Login)
 - **Storage**: [DigitalOcean Spaces](https://cloud.digitalocean.com)
 - **Database**: **PostgreSQL**
 - **ORM**: [Prisma](https://www.prisma.io/)
 
 
 
-### Development Guide
+### Key Features
+
+- **User Authentication**
+  - Sign up and sign in via a user-friendly interface.
+  - Secure session management with the ability to sign out safely.
+
+- **File Management**
+  - Full-featured file explorer accessible from `/files`.
+  - Upload, download, preview and search files.
+  - Drag and drop multiple files for batch upload.
+  - Media preview: images and videos play in pop-up tabs.
+  - Delete files directly from the interface.
+  - Copy file name with a single click for easy referencing or sharing.
+  - Persistent path memory: resume from where you left off after closing the tab.
+
+- **Navigation**
+  - Intuitive sidebar for quick access to all major routes (`/`, `/signin`, `/signup`, `/signout`, `/profile`, `/files`).
+  - Current path display with easy back-navigation in the file view.
+
+- **User Profile**
+  - Accessible via sidebar username link.
+  - Edit user display name (email is fixed for identity consistency).
+
+- **Password Management**
+  - Dedicated `/update_password` page for secure password updates.
+  - Requires current password and double confirmation for safety.
+
+- **Responsive UI**
+  - Elegant and intuitive UI built with Tailwind CSS and shadcn/ui.
+
+
+
+### Deployment Guide
 
 1. Clone the repository or download the source code (`.zip` or via `git clone`).
 
@@ -105,35 +129,122 @@ This project adopts a **Next.js Full-Stack** approach to deliver a modern web ap
 
 
 
-### Key Features
+### Technical Details
 
-- **User Authentication**
-  - Sign up and sign in via a user-friendly interface.
-  - Secure session management with the ability to sign out safely.
+#### 1. Setting up DB
 
-- **File Management**
-  - Full-featured file explorer accessible from `/files`.
-  - Upload, download, preview and search files.
-  - Drag and drop multiple files for batch upload.
-  - Media preview: images and videos play in pop-up tabs.
-  - Delete files directly from the interface.
-  - Copy file name with a single click for easy referencing or sharing.
-  - Persistent path memory: resume from where you left off after closing the tab.
+A new DB user and new table shall be created for the project. First log into psql with root user:
 
-- **Navigation**
-  - Intuitive sidebar for quick access to all major routes (`/`, `/signin`, `/signup`, `/signout`, `/profile`, `/files`).
-  - Current path display with easy back-navigation in the file view.
+```bash
+psql -U <root user>
+```
 
-- **User Profile**
-  - Accessible via sidebar username link.
-  - Edit user display name (email is fixed for identity consistency).
+Create new user and give proper authority.
 
-- **Password Management**
-  - Dedicated `/update_password` page for secure password updates.
-  - Requires current password and double confirmation for safety.
+```sql
+CREATE ROLE naslite WITH LOGIN PASSWORD 'passwd';  # Make sure password is strong
+ALTER ROLE naslite CREATEDB;
+```
 
-- **Responsive UI**
-  - Elegant and intuitive UI built with Tailwind CSS and shadcn/ui.
+Therefore, a valid environment variable is:
+
+```bash
+DATABASE_URL="postgresql://naslite:passwd@localhost:5432/naslite?schema=public"
+```
+
+
+
+Some useful psql command to check DB metadata:
+
+```sql
+\du  -- List of roles (users)
+\d   -- List of relations (tables)
+\l   -- List of databases
+
+\c naslite naslite  -- connect to db naslite via user naslite
+```
+
+
+
+#### 2.  Setting up better-auth prisma schema
+
+1. We create user model under `schema.prisma` and migrate
+
+   ```sql
+   model User {
+       id        String   @id @default(uuid())
+       email     String   @unique
+       name      String
+       createdAt DateTime @default(now())
+       updatedAt DateTime @updatedAt
+   }
+   ```
+
+   migrate: `npx prisma migrate dev --name init`
+
+
+2. User better-auth cli to generate necessary prisma model.
+
+   under `src/lib/auth.ts`
+
+   ```ts
+   import { betterAuth } from "better-auth";
+   import { prismaAdapter } from "better-auth/adapters/prisma";
+   import { PrismaClient } from "@prisma/client";
+   
+   const prisma = new PrismaClient();
+   export const auth = betterAuth({
+       database: prismaAdapter(prisma, {
+           provider: "postgresql",
+       }),
+   });
+   ```
+
+   This `auth.ts` does two things, connect to psql based on .env, also (important) connect better-auth with prisma. If you don't follow exactly this way, better-auth is not aware of prisma, and `npx @better-auth/cli generate` will create an .sql file for you to manually apply. No good. We want better-auth to modify schema.prisma directly, so that DB options are handled by prisma. We never touch .sql nor psql nor manually set prisma.
+
+   After `auth.ts` is setup this way, run `npx @better-auth/cli generate --config src/lib/auth.ts`, `schema.prisma` will be updated. And `migrate` (which will generate automatically)
+
+
+
+#### 3.  better-auth Authentication and Authorization
+
+If you want login functionality, you must `authClient.signIn.email()` in a `"use client"` environment. This function sets session token in cookie, so that you can do authorization within the app (you request, server knows you, give you data, not rejecting you). If you invoke this function in an `"use server"` environment, the cookie is not set in user's browser, user is only logged-in in the server, but no token no cookie, act if not logged-in.
+
+Working endpoints:
+
+`localhost:3000/signup`
+
+`localhost:3000/signin`
+
+`localhost:3000/signin2`  <- different UI
+
+`localhost:3000/greeting` <- To test if signed-in.
+
+to do authorization, check `/src/app/(auth)/greeting/page.tsx` or `src/app/api/upload/route.ts`
+
+
+
+#### 4.  Important Notes on DO's(DigitalOcean) File Path
+
+DO's folder is virtual folder, we can upload a file `folder1/folder2/folder3/file.txt`, without creating folder1/2/3. So there is no folder1/2/3 (although you can create them, will talk about that later), and the filename of `file.txt` is literally `folder1/folder2/folder3/file.txt`. What sucks about it is if you are looking for `folder1//folder2////folder3/////file.txt`, you can't find it, since name not matched.
+
+So we need to be very careful about storing the paths. Few rules:
+
+If you are storing any path, perhaps the full path to the file (therefore the real name of the file), or the folder is in (`folder1/folder2/folder3/`),
+
+1. remove leading and tailing slashes
+2. normalize slashes in the middle (`folder1//folder2` ->`folder1/folder2`)
+3. Only explicitly include / if you are concatenating path
+
+There's a function you can `import { trimAndNormalizePath } from "@/lib/path"` that apply both 1. and 2.
+
+
+
+#### 5. Set User's Current Path in Cookie
+
+User's viewing path is stored in cookie. We set the path when user is checking out a path. When user is creating new item (folder/file), it is created under the path. The benefit of storing in cookie is cookie is persist after closing the browser. 
+
+
 
 
 
@@ -290,111 +401,18 @@ Logging in with Google, GitHub, or other platforms isn’t available yet, but we
 
 
 
-### Technical Details
-
-#### 1. Setting up DB
-A new DB user and new table shall be created for the project. First log into psql with root user:
-
-```bash
-psql -U <root user>
-```
-Create new user and give proper authority.
-
-```sql
-CREATE ROLE naslite WITH LOGIN PASSWORD 'passwd';
-ALTER ROLE naslite CREATEDB;
-```
-
-Therefore, a valid environment variable is:
-
-```bash
-DATABASE_URL="postgresql://naslite:passwd@localhost:5432/naslite?schema=public"
-```
 
 
 
-Some useful psql command to check DB metadata:
-```sql
-\du  -- List of roles (users)
-\d   -- List of relations (tables)
-\l   -- List of databases
-
-\c naslite naslite  -- connect to db naslite via user naslite
-```
 
 
 
-#### 2.  Setting up better-auth prisma schema
+### Motivation
 
-1. We create user model under `schema.prisma` and migrate
-   
-    ```sql
-    model User {
-        id        String   @id @default(uuid())
-        email     String   @unique
-        name      String
-        createdAt DateTime @default(now())
-        updatedAt DateTime @updatedAt
-    }
-    ```
-    migrate: `npx prisma migrate dev --name init`
+It is trivial to mention the importance of data storage. To carry files or to make data portable from device to device, people choose a variety of solutions, including carrying an USB, pay for cloud storage including google drive or iCloud. However, both USB and cloud storage have their drawbacks. USB drive requires carrying the physical drive, you may lose it, or not having it in hand when you need it the most. Cloud storage can be more portable, and you don't need to worry about losing the data, but data are not private. Although the companies claim their protection to user data, you don't have control if they want to peek. Cloud storage is also going to charge more if your usage starts to goes up, so cloud storage, especially free versions, are only good for small-amount, non-important data storage.
 
+NAS has been a modern, highly scalable, and highly configurable solution to geeks, that ensures the data is private, accessible, scalable. NAS usually refers to a tiny computer, that different from the day-to-day laptop that we use, has only a few hard drive opening slots for upgrading storage size, that has a dedicate design for file storage server. NAS is usually kept at home, so the data is secure.
 
-2. User better-auth cli to generate necessary prisma model.
+Although the upfront cost of NAS, including the hardware cost and configuration cost, is high, once setup, you can store and access your precious data all over the world, without worrying about data integrity, security, and cost. The idea of NAS is relatively new compare to USB and cloud storage, still there's only a small portion of people are using NAS to protect their data due to the high upfront cost and setup hardness, but from the increasing amount of online resources including setting up videos, blogs, and forums, the community is growing rapidly, and eventually when the cost problem is gradually solved and more accessible to non-professionals, people will tend to choose this more secure and personal data storage solution.
 
-    under `src/lib/auth.ts`
-    ```ts
-    import { betterAuth } from "better-auth";
-    import { prismaAdapter } from "better-auth/adapters/prisma";
-    import { PrismaClient } from "@prisma/client";
-    
-    const prisma = new PrismaClient();
-    export const auth = betterAuth({
-        database: prismaAdapter(prisma, {
-            provider: "postgresql",
-        }),
-    });
-    ```
-    This `auth.ts` does two things, connect to psql based on .env, also (important) connect better-auth with prisma. If you don't follow exactly this way, better-auth is not aware of prisma, and `npx @better-auth/cli generate` will create an .sql file for you to manually apply. No good. We want better-auth to modify schema.prisma directly, so that DB options are handled by prisma. We never touch .sql nor psql nor manually set prisma.
-
-    After `auth.ts` is setup this way, run `npx @better-auth/cli generate --config src/lib/auth.ts`, `schema.prisma` will be updated. And `migrate` (which will generate automatically)
-
-
-
-#### 3.  better-auth Authentication and Authorization
-
-If you want login functionality, you must `authClient.signIn.email()` in a `"use client"` environment. This function sets session token in cookie, so that you can do authorization within the app (you request, server knows you, give you data, not rejecting you). If you invoke this function in an `"use server"` environment, the cookie is not set in user's browser, user is only logged-in in the server, but no token no cookie, act if not logged-in.
-
-Working endpoints:
-
-`localhost:3000/signup`
-
-`localhost:3000/signin`
-
-`localhost:3000/signin2`  <- different UI
-
-`localhost:3000/greeting` <- To test if signed-in.
-
-to do authorization, check `/src/app/(auth)/greeting/page.tsx` or `src/app/api/upload/route.ts`
-
-
-
-#### 4.  Important Notes on DO's(DigitalOcean) File Path
-
-DO's folder is virtual folder, we can upload a file `folder1/folder2/folder3/file.txt`, without creating folder1/2/3. So there is no folder1/2/3 (although you can create them, will talk about that later), and the filename of `file.txt` is literally `folder1/folder2/folder3/file.txt`. What sucks about it is if you are looking for `folder1//folder2////folder3/////file.txt`, you can't find it, since name not matched.
-
-So we need to be very careful about storing the paths. Few rules:
-
-If you are storing any path, perhaps the full path to the file (therefore the real name of the file), or the folder is in (`folder1/folder2/folder3/`),
-
-1. remove leading and tailing slashes
-2. normalize slashes in the middle (`folder1//folder2` ->`folder1/folder2`)
-3. Only explicitly include / if you are concatenating path
-
-There's a function you can `import { trimAndNormalizePath } from "@/lib/path"` that apply both 1. and 2.
-
-
-
-#### 5. Set User's Current Path in Cookie
-
-User's viewing path is stored in cookie. We set the path when user is checking out a path. When user is creating new item (folder/file), it is created under the path. The benefit of storing in cookie is cookie is persist after closing the browser. 
+Entrepreneur-level NAS companies, including [Synology](https://www.synology.com), [UGREEN](https://nas.ugreen.com/), or [TrueNAS](https://www.truenas.com/), provide a rather heavy solution, including a lot of features that might be overwhelmed to small players who only want a basic upload and view functionalities. Our team decide to design a free, easy-to-setup, super-lightweight application, to manage file upload and preview in a web-browser, that only requires a computer and a storage place. For project educational purpose, we will choose one of the cloud storage provider, DigitalOcean Spaces, AWS S3, or Azure, whichever is cheaper. My ideal storage method, which we will adopt after we have finish the course, would be local computer storage, so that my deprecated ex-MacBook pro can serve more that it can now, which is nothing.
