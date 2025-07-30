@@ -11,3 +11,9 @@
 //   // Now you know who the user is
 //   return new Response(`Hello ${session.user.email}`);
 // }
+
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  return NextResponse.json({ message: "OK" });
+}
