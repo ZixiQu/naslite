@@ -60,12 +60,7 @@ export default function Page() {
     // Retrieve the session using Better Auth's server-side API
     const { data: session, status } = useSession();
 
-    const isPending = status === 'loading';
-    const isError = status === 'unauthenticated';
-    const error = isError ? new Error('Failed to load session') : null;
-
-    if (isPending) return <div>Loading...</div>;
-    if (error) return <div>Error: {error.message}</div>;
+    if (status === 'loading') return <div>Loading...</div>;
 
     return (
         <div className="w-full">

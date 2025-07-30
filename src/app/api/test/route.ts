@@ -11,3 +11,12 @@
 //   // Now you know who the user is
 //   return new Response(`Hello ${session.user.email}`);
 // }
+
+// src/app/api/test/route.ts
+
+import { NextResponse } from "next/server";
+
+export async function GET() {
+  return NextResponse.json({ message: "OK" });
+}
+
